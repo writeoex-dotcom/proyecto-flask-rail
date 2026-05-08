@@ -1,32 +1,57 @@
 # PetMarket Seguro
 
-Prototipo Flask inspirado en la estructura de un e-commerce de mascotas: home con banner, navegación, accesos rápidos, carrito para clientes verificados, personalización por huella y panel administrador con analítica.
+Aplicación web tipo e-commerce de mascotas creada con **Node.js + Express** y estructura **MVC**. Incluye home con banner, barra de navegación, accesos de perfil/tienda/carrito, personalización con botón de huella, carrito para clientes verificados y panel administrador con métricas.
+
+## Estructura MVC
+
+```text
+server.js                 # Arranque de la aplicación
+src/app.js                # Configuración principal de Express
+src/config/               # Variables de app y base de datos
+src/controllers/          # Controladores: home, auth, preferencias, carrito, admin
+src/models/               # Modelos Sequelize para MySQL
+src/routes/               # Rutas web de Express
+src/services/             # Lógica de catálogo, sesión, seguridad y analítica
+src/views/                # Vistas EJS y layout
+public/css, public/js     # Estilos y JavaScript del navegador
+```
 
 ## Configuración
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-export DATABASE_URL='mysql+pymysql://usuario:clave@localhost:3306/petmarket'
-export SECRET_KEY='cambia-esto'
-export ADMIN_EMAIL='admin@gmail.com'
-export ADMIN_PASSWORD_HASH='hash-generado-con-werkzeug'
-flask --app run run
+npm install
+cp .env.example .env
+npm start
+```
+
+Variables principales:
+
+```bash
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=petmarket
+DB_USER=root
+DB_PASSWORD=password
+DB_DIALECT=mysql
+SESSION_SECRET=cambia-esto
+ADMIN_EMAIL=admin@gmail.com
+ADMIN_PASSWORD_HASH=hash-generado-con-bcryptjs
+VERIFICATION_CODE_TTL_MINUTES=10
 ```
 
 Para generar `ADMIN_PASSWORD_HASH`:
 
 ```bash
-python -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('tu-clave-segura'))"
+node -e "const bcrypt=require('bcryptjs'); bcrypt.hash('tu-clave-segura',12).then(console.log)"
 ```
 
 ## Seguridad incluida en el prototipo
 
 - Registro solo para clientes con correo `@gmail.com`.
 - Captcha matemático básico y código de verificación con expiración antes de crear la cuenta.
-- Contraseñas y códigos guardados con hash.
+- Contraseñas y códigos guardados con `bcryptjs`.
 - Rol administrador separado: no se registra desde la web, se habilita por variables de entorno.
-- Registro de navegación, vistas y carrito en MySQL mediante SQLAlchemy.
+- Registro de navegación, vistas, preferencias y carrito en MySQL mediante Sequelize.
+- Middleware `helmet`, cookies `httpOnly` y separación de responsabilidades por controladores/servicios.
 
-En producción se debe conectar un proveedor SMTP real, activar HTTPS, cookies seguras, rate limiting, backups cifrados, auditoría de pagos y cumplimiento de protección de datos.
+En producción se debe conectar un proveedor SMTP real, activar HTTPS, cookies seguras, rate limiting, protección CSRF, backups cifrados, auditoría de pagos y cumplimiento de protección de datos.

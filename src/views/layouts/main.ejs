@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title ? `${title} · ` : '' %>PetMarket Seguro</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">🐾 PetMarket Seguro</a>
+    <nav class="nav">
+      <a href="/">Inicio</a>
+      <a href="/#marcas">Marcas</a>
+      <a href="/#productos">Productos</a>
+      <% if (session.admin) { %><a href="/admin">Admin</a><% } %>
+    </nav>
+    <div class="header-icons" aria-label="Accesos rápidos">
+      <% if (currentUser) { %>
+        <a title="Perfil" href="/logout">👤 <%= currentUser.email.split('@')[0] %></a>
+      <% } else { %>
+        <a title="Perfil y acceso" href="/login">👤 Acceso</a>
+      <% } %>
+      <a title="Tienda" href="/#productos">🏪 Tienda</a>
+      <a title="Carrito" href="/cart">🛒 Carrito</a>
+    </div>
+  </header>
+  <%- include('../partials/flash') %>
+  <main><%- body %></main>
+  <footer><strong>PetMarket Seguro</strong> — Prototipo Express/MVC con marcas oficiales enlazadas; no copia logotipos ni contenido propietario.</footer>
+</body>
+</html>

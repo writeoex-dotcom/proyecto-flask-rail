@@ -1,8 +1,7 @@
-__pycache__/
-*.py[cod]
-.venv/
+node_modules/
 .env
-instance/
-*.sqlite
-*.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+coverage/
 .DS_Store
