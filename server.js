@@ -5,7 +5,7 @@ const { createSessionStore, initializeDatabase } = require('./src/services/datab
 const port = appConfig.port;
 
 async function bootstrap() {
-  const readiness = { databaseReady: false };
+  const readiness = { databaseReady: false, lastDatabaseError: null };
   const sessionStore = createSessionStore();
   const app = createApp({ sessionStore, readiness });
 
@@ -15,9 +15,11 @@ async function bootstrap() {
   });
 
   try {
-    await initializeDatabase(sessionStore);
+    await initializeDatabase(sessionStore, readiness);
     readiness.databaseReady = true;
+    readiness.lastDatabaseError = null;
   } catch (error) {
+    readiness.lastDatabaseError = error.message;
     console.error('MySQL no quedó listo después de todos los reintentos:', error);
     console.error('Revisa MYSQL_URL o las variables MYSQLHOST/MYSQLUSER/MYSQLPASSWORD/MYSQLDATABASE en Railway.');
   }

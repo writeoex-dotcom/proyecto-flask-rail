@@ -1,5 +1,11 @@
 <section class="auth-card">
   <h1><%= title %></h1>
   <p><%= message %></p>
-  <a class="cta" href="/">Volver al inicio</a>
+  <% if (typeof details !== 'undefined' && details) { %>
+    <p class="tags"><%= details %></p>
+  <% } %>
+  <div class="actions">
+    <a class="cta" href="/">Volver al inicio</a>
+    <a href="/ready">Ver estado de base de datos</a>
+  </div>
 </section>

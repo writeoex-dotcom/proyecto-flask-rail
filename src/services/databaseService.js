@@ -22,7 +22,7 @@ function createSessionStore() {
   });
 }
 
-async function initializeDatabase(sessionStore) {
+async function initializeDatabase(sessionStore, readiness) {
   let lastError;
   for (let attempt = 1; attempt <= databaseConfig.retryAttempts; attempt += 1) {
     try {
@@ -30,10 +30,12 @@ async function initializeDatabase(sessionStore) {
       await sequelize.sync();
       await sessionStore.sync();
       await seedProducts();
+      if (readiness) readiness.lastDatabaseError = null;
       console.log('Base de datos conectada y sincronizada correctamente.');
       return true;
     } catch (error) {
       lastError = error;
+      if (readiness) readiness.lastDatabaseError = error.message;
       const retrying = attempt < databaseConfig.retryAttempts;
       console.error(
         `No se pudo conectar a MySQL (intento ${attempt}/${databaseConfig.retryAttempts}).${retrying ? ' Reintentando...' : ''}`,

@@ -9,13 +9,15 @@ const { appConfig } = require('./config/appConfig');
 const webRoutes = require('./routes/webRoutes');
 const { attachLocals } = require('./middleware/locals');
 
+const emptyFlash = { success: [], danger: [], warning: [], info: [] };
+
 function createApp({ sessionStore, readiness } = {}) {
   const app = express();
-  const appReadiness = readiness || { databaseReady: false };
+  const appReadiness = readiness || { databaseReady: false, lastDatabaseError: null };
   app.locals.readiness = appReadiness;
   app.locals.session = {};
   app.locals.currentUser = null;
-  app.locals.flash = { success: [], danger: [], warning: [], info: [] };
+  app.locals.flash = emptyFlash;
   app.locals.databaseReady = false;
 
   app.disable('x-powered-by');
@@ -28,7 +30,10 @@ function createApp({ sessionStore, readiness } = {}) {
   app.head('/health', (req, res) => res.sendStatus(200));
   // Readiness real: confirma si MySQL terminó de conectar/sincronizar.
   app.get('/ready', (req, res) => {
-    res.status(appReadiness.databaseReady ? 200 : 503).json({ databaseReady: appReadiness.databaseReady });
+    res.status(appReadiness.databaseReady ? 200 : 503).json({
+      databaseReady: appReadiness.databaseReady,
+      lastDatabaseError: appReadiness.lastDatabaseError,
+    });
   });
 
   app.set('view engine', 'ejs');
@@ -40,6 +45,21 @@ function createApp({ sessionStore, readiness } = {}) {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   app.use(express.static(path.join(__dirname, '..', 'public')));
+
+  // Importante: esta compuerta va antes de express-session.
+  // Si MySQL no está listo, el store de sesiones no debe ejecutarse o puede provocar Error interno.
+  app.use((req, res, next) => {
+    if (appReadiness.databaseReady) return next();
+    return res.status(503).render('error', {
+      title: 'Base de datos iniciando',
+      message: 'El servidor web está activo, pero MySQL aún está conectando. Revisa /ready o las variables MYSQL_URL/MYSQLHOST en Railway.',
+      details: appReadiness.lastDatabaseError ? `Último error MySQL: ${appReadiness.lastDatabaseError}` : 'Esperando conexión inicial con MySQL.',
+      session: {},
+      currentUser: null,
+      flash: emptyFlash,
+    });
+  });
+
   app.use(session({
     store: sessionStore,
     name: 'petmarket.sid',
@@ -56,14 +76,6 @@ function createApp({ sessionStore, readiness } = {}) {
   app.use(flash());
   app.use(attachLocals);
 
-  app.use((req, res, next) => {
-    if (appReadiness.databaseReady) return next();
-    return res.status(503).render('error', {
-      title: 'Base de datos iniciando',
-      message: 'El servidor web está activo, pero MySQL aún está conectando. Revisa /ready o las variables MYSQL_URL/MYSQLHOST en Railway.',
-    });
-  });
-
   app.use(webRoutes);
 
   app.use((req, res) => {
@@ -72,18 +84,20 @@ function createApp({ sessionStore, readiness } = {}) {
       message: 'No encontramos la página solicitada.',
       session: req.session || {},
       currentUser: res.locals.currentUser || null,
-      flash: res.locals.flash || { success: [], danger: [], warning: [], info: [] },
+      flash: res.locals.flash || emptyFlash,
     });
   });
 
   app.use((error, req, res, next) => {
-    console.error(error);
+    const requestId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    console.error(`[${requestId}] Error no controlado`, error);
     res.status(500).render('error', {
       title: 'Error interno',
       message: 'Ocurrió un error seguro. Inténtalo nuevamente.',
+      details: `Código de diagnóstico: ${requestId}. Revisa los logs del servidor para ver el detalle técnico.`,
       session: req.session || {},
       currentUser: res.locals.currentUser || null,
-      flash: res.locals.flash || { success: [], danger: [], warning: [], info: [] },
+      flash: res.locals.flash || emptyFlash,
     });
   });
 
