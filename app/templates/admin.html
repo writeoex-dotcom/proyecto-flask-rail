@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="section admin">
+  <h1>Panel administrativo de mercado</h1>
+  <div class="kpis">
+    <div><strong>{{ users_count }}</strong><span>Clientes</span></div>
+    <div><strong>{{ carts_count }}</strong><span>Items en carrito</span></div>
+    <div><strong>{{ top_products|sum(attribute='views') }}</strong><span>Vistas de productos</span></div>
+  </div>
+  <div class="charts">
+    <canvas id="eventsChart" data-labels='{{ event_counts|map(attribute=0)|list|tojson }}' data-values='{{ event_counts|map(attribute=1)|list|tojson }}'></canvas>
+    <canvas id="categoryChart" data-labels='{{ category_views|map(attribute=0)|list|tojson }}' data-values='{{ category_views|map(attribute=1)|list|tojson }}'></canvas>
+  </div>
+  <h2>Productos más vistos</h2>
+  <table>
+    <thead><tr><th>Producto</th><th>Categoría</th><th>Marca</th><th>Vistas</th></tr></thead>
+    <tbody>
+      {% for product in top_products %}
+        <tr><td>{{ product.name }}</td><td>{{ product.category }}</td><td>{{ product.brand }}</td><td>{{ product.views }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
