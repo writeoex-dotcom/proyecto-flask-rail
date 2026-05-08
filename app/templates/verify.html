@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-card">
+  <h1>Verificar correo</h1>
+  <p>Digita el código enviado a {{ email }}. Expira según la configuración del servidor.</p>
+  <form method="post">
+    <label>Código <input name="code" inputmode="numeric" minlength="6" maxlength="6" required></label>
+    <button class="cta" type="submit">Verificar y crear cuenta</button>
+  </form>
+</section>
+{% endblock %}

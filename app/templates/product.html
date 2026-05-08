@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="detail">
+  <div class="product-image large">{{ product.category|capitalize }}</div>
+  <div>
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.brand }} · {{ product.species }} · {{ product.life_stage }}</p>
+    <p>Línea {{ product.line_type }} · {{ product.tags }}</p>
+    <strong>S/ {{ '%.2f'|format(product.price) }}</strong>
+    <form method="post" action="{{ url_for('main.add_cart', product_id=product.id) }}">
+      <button class="cta" type="submit">Agregar al carrito</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
