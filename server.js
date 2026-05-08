@@ -2,13 +2,16 @@ const { createApp } = require('./src/app');
 const { sequelize } = require('./src/models');
 const { seedProducts } = require('./src/services/catalogService');
 
-const port = process.env.PORT || 3000;
+const { appConfig } = require('./src/config/appConfig');
+
+const port = appConfig.port;
 
 async function bootstrap() {
   const app = createApp();
   await sequelize.sync();
   await seedProducts();
-  app.listen(port, () => {
+  // Railway requiere escuchar en 0.0.0.0:$PORT para exponer el servicio.
+  app.listen(port, '0.0.0.0', () => {
     console.log(`PetMarket Seguro disponible en http://localhost:${port}`);
   });
 }

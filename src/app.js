@@ -12,6 +12,9 @@ const { attachLocals } = require('./middleware/locals');
 function createApp() {
   const app = express();
 
+  // Railway trabaja detrás de proxy HTTPS; esto permite cookies secure correctas.
+  app.set('trust proxy', 1);
+
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
   app.use(expressLayouts);
@@ -35,6 +38,9 @@ function createApp() {
   }));
   app.use(flash());
   app.use(attachLocals);
+  // Healthcheck usado por Railway para saber si el contenedor arrancó correctamente.
+  app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
   app.use(webRoutes);
 
   app.use((req, res) => {
