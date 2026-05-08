@@ -13,7 +13,7 @@ const emptyFlash = { success: [], danger: [], warning: [], info: [] };
 
 function createApp({ sessionStore, readiness } = {}) {
   const app = express();
-  const appReadiness = readiness || { databaseReady: false, lastDatabaseError: null, databaseConfig: null };
+  const appReadiness = readiness || { databaseReady: false, lastDatabaseError: null, lastDatabaseFailure: null, databaseConfig: null };
   app.locals.readiness = appReadiness;
   app.locals.session = {};
   app.locals.currentUser = null;
@@ -33,6 +33,7 @@ function createApp({ sessionStore, readiness } = {}) {
     res.status(appReadiness.databaseReady ? 200 : 503).json({
       databaseReady: appReadiness.databaseReady,
       lastDatabaseError: appReadiness.lastDatabaseError,
+      lastDatabaseFailure: appReadiness.lastDatabaseFailure,
       databaseConfig: appReadiness.databaseConfig,
     });
   });
@@ -55,7 +56,7 @@ function createApp({ sessionStore, readiness } = {}) {
       title: 'Base de datos iniciando',
       message: 'El servidor web está activo, pero MySQL aún está conectando. Revisa /ready o las variables MYSQL_URL/MYSQLHOST en Railway.',
       details: appReadiness.lastDatabaseError
-        ? `Último error MySQL: ${appReadiness.lastDatabaseError}`
+        ? `Último error MySQL: ${appReadiness.lastDatabaseError}${appReadiness.lastDatabaseFailure?.advice ? ` | Solución sugerida: ${appReadiness.lastDatabaseFailure.advice}` : ''}`
         : 'Esperando conexión inicial con MySQL. En Railway puedes usar MYSQL_URL=${{MySQL.MYSQL_URL}} o variables separadas MYSQLHOST=mysql.railway.internal, MYSQLPORT, MYSQLDATABASE, MYSQLUSER y MYSQLPASSWORD en el servicio web.',
       session: {},
       currentUser: null,
