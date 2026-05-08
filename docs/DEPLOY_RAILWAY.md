@@ -47,7 +47,7 @@ DATABASE_URL=${{MySQL.MYSQL_URL}}
 Si Railway no muestra `MYSQL_URL`, usa `MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}}` o copia estas variables desde el servicio MySQL hacia el servicio web:
 
 ```bash
-MYSQLHOST=...
+MYSQLHOST=mysql.railway.internal
 MYSQLPORT=3306
 MYSQLDATABASE=...
 MYSQLUSER=...
@@ -55,6 +55,25 @@ MYSQLPASSWORD=...
 MYSQL_DATABASE=...
 MYSQL_ROOT_PASSWORD=...
 ```
+
+
+### Usar `MYSQLHOST=mysql.railway.internal`
+
+Si prefieres variables separadas en lugar de `MYSQL_URL`, configura todas estas variables en el servicio web:
+
+```bash
+MYSQLHOST=mysql.railway.internal
+MYSQLPORT=3306
+MYSQLDATABASE=railway
+MYSQLUSER=root
+MYSQLPASSWORD=${{MySQL.MYSQLPASSWORD}}
+```
+
+`mysql.railway.internal` usa la red privada de Railway, por eso solo resuelve/conecta desde servicios dentro del mismo proyecto y entorno. La app autodetecta ese host, prioriza DNS IPv6 cuando corresponde y muestra `usesRailwayInternalHost`, `dnsResultOrder` y `help` en `/ready` para diagnosticarlo sin revelar contraseñas.
+
+La app crea los modelos con `sequelize.sync()` al iniciar. Si necesitas sincronizarlos manualmente, ejecuta `npm run db:sync`; para actualizar tablas existentes activa temporalmente `DB_SYNC_ALTER=true`.
+
+Para errores de conexión, abre `/ready` y valida `missingSeparateKeys`. Debe ser `[]`; si muestra `MYSQLPASSWORD o MYSQL_ROOT_PASSWORD`, `MYSQLDATABASE o MYSQL_DATABASE`, `MYSQLUSER`, `MYSQLPORT` o `MYSQLHOST`, esa variable falta en el servicio web.
 
 ### 4. Variables de entorno recomendadas
 
@@ -67,6 +86,8 @@ ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD_HASH=hash-bcrypt-del-admin
 DB_CONNECT_RETRIES=0
 DB_CONNECT_RETRY_DELAY_MS=5000
+DB_CONNECT_TIMEOUT_MS=20000
+DB_SYNC_ALTER=false
 SESSION_TABLE_NAME=sessions
 VERIFICATION_CODE_TTL_MINUTES=10
 ```
@@ -99,7 +120,7 @@ Copia el resultado en `ADMIN_PASSWORD_HASH`. La web no permite registrar adminis
 Antes de cambiar código, revisa `https://status.railway.com/`. Si Railway marca `Build Machines (Metal)` como Investigating/Degraded, el build puede estar en cola por una incidencia de plataforma. En ese caso espera, vuelve a desplegar cuando se resuelva y consulta [`RAILWAY_TROUBLESHOOTING.md`](RAILWAY_TROUBLESHOOTING.md).
 
 
-- **Healthcheck failure**: confirma que `railway.json` apunte a `/health`. Ese endpoint está antes de sesiones/MySQL y debe responder `ok` con HTTP 200. Revisa también que `server.js` escuche en `0.0.0.0`.
+- **Healthcheck failure**: confirma que `railway.json` apunte a `/health`. Ese endpoint está antes de sesiones/MySQL y debe responder `ok` con HTTP 200. Revisa también que `server.js` escuche en `::`.
 - **Error de base de datos / ECONNREFUSED**: valida que `MYSQL_URL` exista en el servicio web como Variable Reference, no solo en el servicio MySQL. Si no hay URL, configura `MYSQL_PUBLIC_URL` o `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`. Revisa `/ready` para ver `databaseConfig` sin secretos: `presentUrlKeys`, `urlSource`, `hasExplicitDatabaseConfig`, `host`, `database` y `username`.
 - **Sesión no persiste**: confirma `SESSION_SECRET`, `SESSION_TABLE_NAME=sessions`, `SECURE_COOKIES=true` con `NODE_ENV=production` y que `/ready` esté en verde.
 - **No entra admin**: genera de nuevo `ADMIN_PASSWORD_HASH` con `bcryptjs` y pega el hash completo.

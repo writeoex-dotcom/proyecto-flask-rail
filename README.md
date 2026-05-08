@@ -13,7 +13,7 @@ La experiencia incluye home con banner publicitario, navegación profesional, ac
 - **Administrador seguro**: no se registra desde la web; se configura con `ADMIN_EMAIL` y `ADMIN_PASSWORD_HASH`.
 - **Analítica**: guarda navegación, vistas, preferencias y carrito para panel administrativo.
 - **Modo oscuro**: selector de tema con persistencia en `localStorage`.
-- **Deploy-ready**: `railway.json`, `Procfile`, `/health`, `/ready`, `0.0.0.0:$PORT` y soporte `MYSQL_URL`/`DATABASE_URL`/variables `MYSQL*` de Railway.
+- **Deploy-ready**: `railway.json`, `Procfile`, `/health`, `/ready`, `[::]:$PORT` y soporte `MYSQL_URL`/`DATABASE_URL`/variables `MYSQL*` de Railway.
 
 ## Requisitos
 
@@ -39,7 +39,7 @@ PORT=3000
 MYSQL_URL=mysql://usuario:clave@host:puerto/base
 DATABASE_URL=mysql://usuario:clave@host:puerto/base
 MYSQL_PUBLIC_URL=mysql://usuario:clave@host-publico:puerto/base
-MYSQLHOST=containers-us-west-xxx.railway.app
+MYSQLHOST=mysql.railway.internal
 MYSQLPORT=3306
 MYSQLDATABASE=railway
 MYSQL_DATABASE=railway
@@ -58,11 +58,27 @@ ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD_HASH=hash-generado-con-bcryptjs
 DB_CONNECT_RETRIES=0
 DB_CONNECT_RETRY_DELAY_MS=5000
+DB_CONNECT_TIMEOUT_MS=20000
+MYSQL_DNS_RESULT_ORDER=
+DB_SYNC_ALTER=false
 SESSION_TABLE_NAME=sessions
 VERIFICATION_CODE_TTL_MINUTES=10
 ```
 
-Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL` como **Variable Reference dentro del servicio web**, por ejemplo `MYSQL_URL=${{MySQL.MYSQL_URL}}`. Si tu plugin no la muestra, usa `MYSQL_PUBLIC_URL` o variables separadas `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`.
+Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL` como **Variable Reference dentro del servicio web**, por ejemplo `MYSQL_URL=${{MySQL.MYSQL_URL}}`. Si tu plugin no la muestra, usa `MYSQL_PUBLIC_URL` o variables separadas `MYSQLHOST=mysql.railway.internal`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`. `mysql.railway.internal` solo funciona desde servicios del mismo proyecto/entorno de Railway; para conectarte desde tu PC usa la URL pública/TCP proxy.
+
+
+## Crear/sincronizar modelos en MySQL
+
+La app crea las tablas automáticamente al iniciar con `sequelize.sync()`. Si quieres forzar la creación desde consola antes de abrir la web, ejecuta:
+
+```bash
+npm run db:sync
+```
+
+Para un prototipo en Railway, si ya existían tablas y necesitas aplicar nuevos índices/campos de los modelos, activa temporalmente `DB_SYNC_ALTER=true`, ejecuta un redeploy o `npm run db:sync`, valida `/ready` y luego vuelve a dejarlo en `false`.
+
+Si configuraste `MYSQLHOST=mysql.railway.internal` y `/ready` sigue en rojo, revisa `databaseConfig.missingSeparateKeys`: debe quedar vacío. Si aparecen variables faltantes, agrégalas en el servicio web de Railway (no solo en el servicio MySQL). También revisa `lastDatabaseFailure.code` y `lastDatabaseFailure.advice`, que traducen errores como `ENOTFOUND`, `ETIMEDOUT`, `ECONNREFUSED`, `ER_ACCESS_DENIED_ERROR` y `ER_BAD_DB_ERROR` a una acción concreta. Aunque MySQL esté caído, la web permite navegar home, productos, login, registro y carrito en modo temporal; las acciones persistentes se habilitan cuando `databaseReady` pasa a `true`.
 
 ## Estructura del proyecto
 
@@ -123,6 +139,9 @@ MYSQL_URL=${{MySQL.MYSQL_URL}}
 # Si no tienes MYSQL_URL, usa MYSQLHOST/MYSQLPORT/MYSQLDATABASE/MYSQLUSER/MYSQLPASSWORD
 DB_CONNECT_RETRIES=0
 DB_CONNECT_RETRY_DELAY_MS=5000
+DB_CONNECT_TIMEOUT_MS=20000
+MYSQL_DNS_RESULT_ORDER=
+DB_SYNC_ALTER=false
 SESSION_TABLE_NAME=sessions
 ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD_HASH=pega-aqui-el-hash-bcrypt
@@ -223,7 +242,7 @@ Eso significa que el servicio web no recibió ninguna variable MySQL. Debes ir a
 
 ## Despliegue en Render
 
-El repo incluye `render.yaml` para crear el servicio web `petmarket-seguro-web` en Render. La app usa MySQL, por lo que en Render debes conectar un MySQL externo con `MYSQL_URL` en Environment Variables. Render define `PORT` automáticamente; la app ya escucha `0.0.0.0:$PORT`, expone `/health` para health checks y `/ready` para validar MySQL. Guía completa: [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md).
+El repo incluye `render.yaml` para crear el servicio web `petmarket-seguro-web` en Render. La app usa MySQL, por lo que en Render debes conectar un MySQL externo con `MYSQL_URL` en Environment Variables. Render define `PORT` automáticamente; la app ya escucha `[::]:$PORT`, expone `/health` para health checks y `/ready` para validar MySQL. Guía completa: [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md).
 
 
 ## Corrección de datos y seed

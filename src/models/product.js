@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => sequelize.define('Product', {
-  name: { type: DataTypes.STRING(160), allowNull: false },
+  name: { type: DataTypes.STRING(160), allowNull: false, unique: true },
   category: { type: DataTypes.STRING(60), allowNull: false },
   brand: { type: DataTypes.STRING(80), allowNull: false },
   species: { type: DataTypes.STRING(40), allowNull: false },
@@ -10,4 +10,10 @@ module.exports = (sequelize, DataTypes) => sequelize.define('Product', {
   views: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0 },
 }, {
   tableName: 'products',
+  indexes: [
+    { unique: true, fields: ['name'] },
+    { fields: ['species', 'lifeStage'] },
+    { fields: ['category'] },
+    { fields: ['lineType'] },
+  ],
 });

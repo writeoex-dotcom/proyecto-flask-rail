@@ -15,4 +15,9 @@ module.exports = (sequelize, DataTypes) => sequelize.define('PetPreference', {
   toyHardness: DataTypes.STRING(40),
 }, {
   tableName: 'pet_preferences',
+  indexes: [
+    { fields: ['userId'] },
+    { fields: ['sessionKey'] },
+    { fields: ['species', 'lifeStage'] },
+  ],
 });

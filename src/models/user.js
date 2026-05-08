@@ -5,4 +5,8 @@ module.exports = (sequelize, DataTypes) => sequelize.define('User', {
   emailVerified: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 }, {
   tableName: 'users',
+  indexes: [
+    { unique: true, fields: ['email'] },
+    { fields: ['emailVerified'] },
+  ],
 });

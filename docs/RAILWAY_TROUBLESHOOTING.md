@@ -47,3 +47,12 @@ npm install --omit=dev
 ```
 
 Esto evita instalar herramientas de desarrollo como `nodemon` en Railway y reduce el trabajo cuando el build finalmente entra a una máquina disponible. No elimina las colas causadas por incidentes de Railway, pero sí hace más limpio y predecible el build de la app.
+
+
+## MYSQLHOST=mysql.railway.internal no conecta
+
+- Confirma que las variables estén en el servicio web, no solo en el servicio MySQL: `MYSQLHOST=mysql.railway.internal`, `MYSQLPORT=3306`, `MYSQLDATABASE=railway`, `MYSQLUSER=root` y `MYSQLPASSWORD`.
+- `mysql.railway.internal` solo funciona dentro del mismo proyecto y entorno de Railway. Desde local usa `MYSQL_PUBLIC_URL`/TCP Proxy.
+- Revisa `/ready`: debe mostrar `usesRailwayInternalHost: true`, `dnsResultOrder`, `presentSeparateKeys` con las variables recibidas y `missingSeparateKeys: []`. Si `databaseReady` sigue en `false`, usa `lastDatabaseFailure.code` y `lastDatabaseFailure.advice` para distinguir DNS, timeout, credenciales o base inexistente.
+- Mientras `databaseReady` está en `false`, puedes navegar el catálogo y páginas principales en modo temporal; registro, carrito persistente y admin quedan completos cuando MySQL conecta.
+- Si las tablas no existen, espera a que `/ready` pase a `databaseReady: true` o ejecuta `npm run db:sync`. Para actualizar modelos existentes usa temporalmente `DB_SYNC_ALTER=true`.

@@ -36,14 +36,14 @@ const NavigationEvent = require('./navigationEvent')(sequelize, DataTypes);
 const CartItem = require('./cartItem')(sequelize, DataTypes);
 
 // Relaciones principales para consultas de carrito, analítica y perfil de mascota.
-User.hasMany(PetPreference, { foreignKey: 'userId' });
-PetPreference.belongsTo(User, { foreignKey: 'userId' });
-User.hasMany(CartItem, { foreignKey: 'userId' });
-CartItem.belongsTo(User, { foreignKey: 'userId' });
-Product.hasMany(CartItem, { foreignKey: 'productId' });
-CartItem.belongsTo(Product, { foreignKey: 'productId' });
-User.hasMany(NavigationEvent, { foreignKey: 'userId' });
-NavigationEvent.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(PetPreference, { foreignKey: { name: 'userId', allowNull: true }, onDelete: 'SET NULL' });
+PetPreference.belongsTo(User, { foreignKey: { name: 'userId', allowNull: true }, onDelete: 'SET NULL' });
+User.hasMany(CartItem, { foreignKey: { name: 'userId', allowNull: false }, onDelete: 'CASCADE' });
+CartItem.belongsTo(User, { foreignKey: { name: 'userId', allowNull: false }, onDelete: 'CASCADE' });
+Product.hasMany(CartItem, { foreignKey: { name: 'productId', allowNull: false }, onDelete: 'CASCADE' });
+CartItem.belongsTo(Product, { foreignKey: { name: 'productId', allowNull: false }, onDelete: 'CASCADE' });
+User.hasMany(NavigationEvent, { foreignKey: { name: 'userId', allowNull: true }, onDelete: 'SET NULL' });
+NavigationEvent.belongsTo(User, { foreignKey: { name: 'userId', allowNull: true }, onDelete: 'SET NULL' });
 
 module.exports = {
   sequelize,

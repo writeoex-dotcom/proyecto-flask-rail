@@ -5,4 +5,10 @@ module.exports = (sequelize, DataTypes) => sequelize.define('NavigationEvent', {
   payload: { type: DataTypes.JSON, allowNull: false },
 }, {
   tableName: 'navigation_events',
+  indexes: [
+    { fields: ['userId'] },
+    { fields: ['sessionKey'] },
+    { fields: ['eventType'] },
+    { fields: ['createdAt'] },
+  ],
 });
