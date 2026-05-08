@@ -211,4 +211,9 @@ Si Railway muestra `Build Machines (Metal) - Investigating` o indica que los bui
 
 ## Variables Railway que acepta la app
 
-La app acepta `MYSQL_URL`, `DATABASE_URL`, `MYSQL_PUBLIC_URL`, `DB_URL`, variables separadas `MYSQLHOST`/`MYSQLPORT`/`MYSQLDATABASE`/`MYSQLUSER`/`MYSQLPASSWORD` y también alias como `MYSQL_DATABASE` y `MYSQL_ROOT_PASSWORD`. Puedes verificar qué configuración detectó visitando `/ready`; la respuesta muestra `databaseConfig` sin contraseña.
+La app acepta `MYSQL_URL`, `DATABASE_URL`, `MYSQL_PUBLIC_URL`, `DB_URL`, variables separadas `MYSQLHOST`/`MYSQLPORT`/`MYSQLDATABASE`/`MYSQLUSER`/`MYSQLPASSWORD` y también alias como `MYSQL_DATABASE` y `MYSQL_ROOT_PASSWORD`. Puedes verificar qué configuración detectó visitando `/ready`; la respuesta muestra `databaseConfig` sin contraseña. Si `hasExplicitDatabaseConfig` aparece en `false` y `host` aparece como `localhost`, el servicio web no recibió variables MySQL: agrega una Variable Reference en Railway.
+
+
+## Si `/ready` muestra `host: localhost` en Railway
+
+Eso significa que el servicio web no recibió ninguna variable MySQL. Debes ir al servicio **web** en Railway, abrir **Variables**, usar **Add a Variable Reference** y crear `MYSQL_URL=${{MySQL.MYSQL_URL}}`. Si quieres usar la URL pública, crea `MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}}`. Después redeploy. La app ya detecta este caso y deja de spamear reintentos infinitos contra localhost en Railway.

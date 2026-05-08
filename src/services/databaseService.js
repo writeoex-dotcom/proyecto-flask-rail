@@ -33,6 +33,12 @@ async function initializeDatabase(sessionStore, readiness) {
 
   if (readiness) readiness.databaseConfig = databaseConfig.summary;
 
+  if (databaseConfig.isRailway && !databaseConfig.hasExplicitDatabaseConfig) {
+    if (readiness) readiness.lastDatabaseError = databaseConfig.missingRailwayConfigMessage;
+    console.error(databaseConfig.missingRailwayConfigMessage, databaseConfig.summary);
+    return false;
+  }
+
   while (retryForever || attempt <= databaseConfig.retryAttempts) {
     try {
       await sequelize.authenticate();
@@ -46,11 +52,13 @@ async function initializeDatabase(sessionStore, readiness) {
       lastError = error;
       if (readiness) readiness.lastDatabaseError = error.message;
       const retrying = retryForever || attempt < databaseConfig.retryAttempts;
-      console.error(
-        `No se pudo conectar a MySQL (intento ${describeAttempt(attempt)}).${retrying ? ' Reintentando...' : ''}`,
-        error.message,
-        databaseConfig.summary,
-      );
+      if (attempt === 1 || attempt % 12 === 0 || !retrying) {
+        console.error(
+          `No se pudo conectar a MySQL (intento ${describeAttempt(attempt)}).${retrying ? ' Reintentando...' : ''}`,
+          error.message,
+          databaseConfig.summary,
+        );
+      }
       if (retrying) await wait(databaseConfig.retryDelayMs);
     }
     attempt += 1;

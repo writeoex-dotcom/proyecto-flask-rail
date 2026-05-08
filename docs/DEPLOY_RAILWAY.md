@@ -131,4 +131,4 @@ En el servicio **web** abre Variables y usa **Add a Variable Reference**. Ejempl
 MYSQL_URL=${{MySQL.MYSQL_URL}}
 ```
 
-Si solo ves las variables dentro del servicio MySQL, la app web no las recibe automáticamente. Deben estar también referenciadas en el servicio web.
+Si solo ves las variables dentro del servicio MySQL, la app web no las recibe automáticamente. Deben estar también referenciadas en el servicio web. Si `/ready` muestra `hasExplicitDatabaseConfig: false` y `host: localhost`, este es exactamente el problema.
