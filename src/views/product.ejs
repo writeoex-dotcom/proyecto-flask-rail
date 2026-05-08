@@ -4,9 +4,14 @@
     <h1><%= product.name %></h1>
     <p><%= product.brand %> · <%= product.species %> · <%= product.lifeStage %></p>
     <p>Línea <%= product.lineType %> · <%= product.tags %></p>
-    <strong>S/ <%= Number(product.price).toFixed(2) %></strong>
-    <form method="post" action="/cart/add/<%= product.id %>">
-      <button class="cta" type="submit">Agregar al carrito</button>
-    </form>
+    <% if (product.packageSize) { %><p><strong>Presentación:</strong> <%= product.packageSize %></p><% } %>
+    <% if (product.sourceSummary) { %><p><strong>Fuente validada:</strong> <%= product.sourceSummary %></p><% } %>
+    <strong>S/ <%= Number(product.price).toFixed(2) %> <small class="price-note">referencial</small></strong>
+    <div class="actions detail-actions">
+      <% if (product.sourceUrl) { %><a href="<%= product.sourceUrl %>" target="_blank" rel="noopener noreferrer">Ver fuente oficial</a><% } %>
+      <form method="post" action="/cart/add/<%= product.id %>">
+        <button class="cta" type="submit">Agregar al carrito</button>
+      </form>
+    </div>
   </div>
 </section>

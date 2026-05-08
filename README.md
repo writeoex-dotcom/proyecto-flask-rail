@@ -13,6 +13,7 @@ La experiencia incluye home con banner publicitario, navegación profesional, ac
 - **Administrador seguro**: no se registra desde la web; se configura con `ADMIN_EMAIL` y `ADMIN_PASSWORD_HASH`.
 - **Analítica**: guarda navegación, vistas, preferencias y carrito para panel administrativo.
 - **Modo oscuro**: selector de tema con persistencia en `localStorage`.
+- **Catálogo trazable**: productos semilla revisados contra fuentes reales y documentados en `docs/CATALOG_SOURCES.md`; los precios son referenciales para demo.
 - **Deploy-ready**: `railway.json`, `Procfile`, `/health`, `/ready`, `[::]:$PORT` y soporte `MYSQL_URL`/`DATABASE_URL`/variables `MYSQL*` de Railway.
 
 ## Requisitos

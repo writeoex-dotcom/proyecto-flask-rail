@@ -16,6 +16,33 @@ document.addEventListener('DOMContentLoaded', () => {
     setThemeIcon();
   });
 
+
+  const navToggle = document.querySelector('[data-nav-toggle]');
+  const mainNav = document.querySelector('[data-main-nav]');
+
+  function setNavigationOpen(isOpen) {
+    if (!navToggle || !mainNav) return;
+    mainNav.hidden = !isOpen;
+    navToggle.setAttribute('aria-expanded', String(isOpen));
+    navToggle.setAttribute('aria-label', isOpen ? 'Cerrar barra de navegación' : 'Abrir barra de navegación');
+    body.classList.toggle('nav-open', isOpen);
+  }
+
+  navToggle?.addEventListener('click', () => {
+    setNavigationOpen(mainNav?.hidden ?? true);
+  });
+
+  mainNav?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setNavigationOpen(false));
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && mainNav && !mainNav.hidden) {
+      setNavigationOpen(false);
+      navToggle?.focus();
+    }
+  });
+
   const modal = document.querySelector('[data-preferences-modal]');
   const openPreferenceButtons = document.querySelectorAll('[data-open-preferences]');
   const closePreferenceButtons = document.querySelectorAll('[data-close-preferences]');
@@ -51,6 +78,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const sizeSelect = preferenceForm?.querySelector('[data-size-select]');
   const speciesSelect = preferenceForm?.querySelector('[data-species-select]');
   const speciesHint = preferenceForm?.querySelector('[data-species-hint]');
+  const foodLineSelect = preferenceForm?.querySelector('[data-food-line-select]');
+  const medicalConditionSelect = preferenceForm?.querySelector('[data-medical-condition-select]');
+  const foodHint = preferenceForm?.querySelector('[data-food-hint]');
+
+  function updateFoodOptions() {
+    if (!foodLineSelect || !medicalConditionSelect || !speciesSelect) return;
+    const selectedSpecies = speciesSelect.value;
+    const foodApplies = ['perro', 'gato'].includes(selectedSpecies);
+    foodLineSelect.disabled = !foodApplies;
+    if (!foodApplies) foodLineSelect.value = '';
+    const medicalApplies = foodApplies && foodLineSelect.value === 'medicada';
+    medicalConditionSelect.disabled = !medicalApplies;
+    if (!medicalApplies) medicalConditionSelect.value = '';
+    if (foodHint) {
+      foodHint.textContent = foodApplies
+        ? 'La línea comercial/medicada aplica solo a comida para perro o gato.'
+        : 'Para aves, hamsters o peces se muestran accesorios y otros productos; la línea de comida comercial/medicada no aplica.';
+    }
+  }
+
+
   const speciesLabels = {
     '': 'Primero elige tamaño',
     perro: 'Perro',
@@ -88,10 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `Opciones compatibles: ${allowed.map((species) => speciesLabels[species]).join(', ')}.`
         : 'La lista se ajusta al tamaño seleccionado.';
     }
+    updateFoodOptions();
   }
 
   updateSpeciesOptions();
   sizeSelect?.addEventListener('change', updateSpeciesOptions);
+  speciesSelect?.addEventListener('change', updateFoodOptions);
+  foodLineSelect?.addEventListener('change', updateFoodOptions);
+  updateFoodOptions();
   preferenceForm?.addEventListener('submit', (event) => {
     if (sizeSelect?.value && speciesSelect && !speciesSelect.value) {
       event.preventDefault();

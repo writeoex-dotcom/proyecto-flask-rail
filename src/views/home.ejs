@@ -6,7 +6,7 @@
       icon: '🥣',
       eyebrow: 'Alimentación diaria',
       title: 'Comida comercial',
-      description: 'Productos para nutrición de rutina por especie y etapa de vida.',
+      description: 'Solo comida de línea comercial: alimento seco o diario para nutrición de rutina.',
       items: products.filter((product) => product.category === 'comida' && product.lineType === 'comercial'),
     },
     {
@@ -14,7 +14,7 @@
       icon: '🩺',
       eyebrow: 'Líneas veterinarias',
       title: 'Comida medicada',
-      description: 'Opciones para condiciones específicas; siempre validar con veterinario.',
+      description: 'Solo comida de línea medicada/veterinaria para condiciones específicas.',
       items: products.filter((product) => product.category === 'comida' && product.lineType === 'medicada'),
     },
     {
@@ -22,7 +22,7 @@
       icon: '🧴',
       eyebrow: 'Cuidado y limpieza',
       title: 'Shampoo y lociones',
-      description: 'Separado para pelo, piel sensible y cuidado dermatológico.',
+      description: 'Otros productos de cuidado: no son línea comercial/medicada de comida.',
       items: products.filter((product) => ['shampoo', 'lociones'].includes(product.category)),
     },
     {
@@ -30,7 +30,7 @@
       icon: '🏷️',
       eyebrow: 'Uso diario',
       title: 'Accesorios',
-      description: 'Placas, camas, collarines y elementos de confort.',
+      description: 'Otros productos: placas, camas, collarines y elementos de confort.',
       items: products.filter((product) => product.category === 'accesorios'),
     },
     {
@@ -38,10 +38,40 @@
       icon: '🎾',
       eyebrow: 'Juego seguro',
       title: 'Juguetes',
-      description: 'Organizados por tamaño y dureza para evitar opciones dispersas.',
+      description: 'Otros productos de entretenimiento organizados por tamaño y dureza.',
       items: products.filter((product) => product.category === 'juguetes'),
     },
   ].filter((section) => section.items.length);
+
+  const crossSections = [
+    { id: 'perros', icon: '🐕', eyebrow: 'Por mascota', title: 'Perros', description: 'Comida, cuidado, accesorios y juguetes para perro.', items: products.filter((product) => product.species === 'perro') },
+    { id: 'gatos', icon: '🐈', eyebrow: 'Por mascota', title: 'Gatos', description: 'Alimento, cama y productos recomendados para gato.', items: products.filter((product) => product.species === 'gato') },
+    { id: 'pequenas-mascotas', icon: '🐹', eyebrow: 'Por tamaño', title: 'Pequeñas mascotas', description: 'Opciones para aves, hamsters y mascotas pequeñas.', items: products.filter((product) => ['ave', 'hamster', 'pez'].includes(product.species) || product.tags.includes('pequeña')) },
+    { id: 'cachorros', icon: '🐶', eyebrow: 'Por etapa', title: 'Cachorros', description: 'Productos para menos de 1 año.', items: products.filter((product) => product.lifeStage === 'cachorro') },
+    { id: 'adulto-mayor', icon: '🧓', eyebrow: 'Por etapa', title: 'Adulto mayor', description: 'Productos para mascotas senior y necesidades sensibles.', items: products.filter((product) => product.lifeStage === 'adulto mayor') },
+    { id: 'renal-urinario', icon: '💧', eyebrow: 'Condición', title: 'Renal y urinario', description: 'Alimentos veterinarios para soporte renal o urinario.', items: products.filter((product) => product.tags.includes('renal') || product.tags.includes('urinaria')) },
+    { id: 'digestivo-cardiaco', icon: '❤️', eyebrow: 'Condición', title: 'Digestivo y cardíaco', description: 'Opciones gastrointestinales y cardíacas.', items: products.filter((product) => product.tags.includes('gastrointestinal') || product.tags.includes('cardíaca')) },
+    { id: 'piel-sensible', icon: '🌿', eyebrow: 'Cuidado', title: 'Piel sensible y dermatológico', description: 'Shampoo, lociones y alimentos con soporte dermatológico.', items: products.filter((product) => product.tags.includes('piel sensible') || product.tags.includes('dermatológico')) },
+    { id: 'juguetes-resistencia', icon: '🦴', eyebrow: 'Juego', title: 'Juguetes por dureza', description: 'Juguetes suaves, medianos o duros según necesidad.', items: products.filter((product) => product.category === 'juguetes') },
+    { id: 'confort-identificacion', icon: '🛏️', eyebrow: 'Accesorios', title: 'Confort e identificación', description: 'Camas, placas, collares y hábitat.', items: products.filter((product) => ['cama', 'placa', 'collarín', 'hábitat'].includes(product.productType)) },
+  ].filter((section) => section.items.length);
+
+  const quickTags = [
+    ['#comida-comercial', '🥣 Comercial'],
+    ['#comida-medicada', '🩺 Medicada'],
+    ['#perros', '🐕 Perros'],
+    ['#gatos', '🐈 Gatos'],
+    ['#pequenas-mascotas', '🐹 Pequeñas'],
+    ['#cachorros', '🐶 Cachorros'],
+    ['#adulto-mayor', '🧓 Senior'],
+    ['#renal-urinario', '💧 Renal/Urinario'],
+    ['#digestivo-cardiaco', '❤️ Digestivo/Cardíaco'],
+    ['#piel-sensible', '🌿 Piel sensible'],
+    ['#higiene', '🧴 Higiene'],
+    ['#accesorios', '🏷️ Accesorios'],
+    ['#juguetes', '🎾 Juguetes'],
+    ['#confort-identificacion', '🛏️ Confort'],
+  ];
 %>
 
 <section class="hero section-block hero-section">
@@ -61,14 +91,12 @@
   </div>
 </section>
 
-<nav class="section-nav section" aria-label="Secciones de la tienda">
+<nav class="section-nav section superpet-tags" aria-label="Etiquetas rápidas de navegación">
   <a href="#preferencias">🐾 Preferencias</a>
   <a href="#marcas">⭐ Marcas</a>
-  <a href="#comida-comercial">🥣 Comercial</a>
-  <a href="#comida-medicada">🩺 Medicada</a>
-  <a href="#higiene">🧴 Higiene</a>
-  <a href="#accesorios">🏷️ Accesorios</a>
-  <a href="#juguetes">🎾 Juguetes</a>
+  <% quickTags.forEach(([href, label]) => { %>
+    <a href="<%= href %>"><%= label %></a>
+  <% }) %>
 </nav>
 
 <section id="preferencias" class="preference-summary section-block">
@@ -105,7 +133,7 @@
     <div>
       <p class="eyebrow">Referencias externas</p>
       <h2>Marcas oficiales y reales</h2>
-      <p>Cada marca está separada de la tienda para mantener el sitio limpio y fácil de revisar.</p>
+      <p>Cada marca enlaza a una fuente externa real; los productos muestran ficha oficial o fuente especializada para auditar coherencia.</p>
     </div>
   </div>
   <div class="brand-grid">
@@ -126,15 +154,15 @@
     <div>
       <p class="eyebrow">Tienda organizada</p>
       <h2>Productos separados por sección</h2>
-      <p>Los productos recomendados se muestran en su categoría correspondiente para evitar una vista dispersa.</p>
+      <p>Comercial y medicada aplican específicamente a comida. Shampoo, accesorios y juguetes se separan como otros productos. Los precios son referenciales en soles y no reemplazan la validación del proveedor local.</p>
     </div>
   </div>
 </section>
 
 <p class="empty-state section" data-search-empty hidden>No encontramos productos con esa búsqueda. Prueba con comida, medicada, shampoo, accesorios o juguetes.</p>
 
-<% productSections.forEach((section) => { %>
-  <section id="<%= section.id %>" class="section product-section section-block" data-product-section>
+<% const renderSection = (section, mode = 'principal') => { %>
+  <section id="<%= section.id %>" class="section product-section section-block <%= mode === 'cruce' ? 'cross-section' : '' %>" data-product-section>
     <div class="section-heading product-section-heading">
       <div class="section-title-with-icon">
         <span><%= section.icon %></span>
@@ -148,21 +176,48 @@
     </div>
     <div class="product-grid">
       <% section.items.forEach((product) => { %>
-        <article class="product-card" data-product-card data-search="<%= `${product.name} ${product.brand} ${product.species} ${product.lifeStage} ${product.lineType} ${product.category} ${product.tags}` %>">
+        <article class="product-card" data-product-card data-search="<%= `${product.name} ${product.brand} ${product.species} ${product.lifeStage} ${product.lineType} ${product.productType} ${product.category} ${product.tags}` %>">
           <div class="product-image"><%= product.category %></div>
           <h3><%= product.name %></h3>
           <p><%= product.brand %> · <%= product.species %> · <%= product.lifeStage %></p>
-          <p class="tags"><%= product.lineType %> · <%= product.tags %></p>
-          <strong>S/ <%= Number(product.price).toFixed(2) %></strong>
+          <div class="tag-cloud" aria-label="Etiquetas de producto">
+            <span><%= product.category %></span>
+            <span><%= product.category === 'comida' ? `línea ${product.lineType}` : product.productType %></span>
+            <span><%= product.species %></span>
+            <span><%= product.lifeStage %></span>
+            <% product.tags.split(',').filter(Boolean).forEach((tag) => { %><span><%= tag.trim() %></span><% }) %>
+          </div>
+          <% if (product.packageSize || product.sourceSummary) { %>
+            <div class="product-source">
+              <% if (product.packageSize) { %><small><strong>Presentación:</strong> <%= product.packageSize %></small><% } %>
+              <% if (product.sourceSummary) { %><small><strong>Validación:</strong> <%= product.sourceSummary %></small><% } %>
+            </div>
+          <% } %>
+          <strong>S/ <%= Number(product.price).toFixed(2) %> <small class="price-note">referencial</small></strong>
           <div class="actions">
             <a href="/product/<%= product.id %>">Ver</a>
+            <% if (product.sourceUrl) { %><a href="<%= product.sourceUrl %>" target="_blank" rel="noopener noreferrer">Fuente</a><% } %>
             <form method="post" action="/cart/add/<%= product.id %>"><button type="submit">Agregar</button></form>
           </div>
         </article>
       <% }) %>
     </div>
   </section>
-<% }) %>
+<% } %>
+
+<% productSections.forEach((section) => renderSection(section)) %>
+
+<section id="cruces" class="section section-block store-index">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Etiquetas y cruces</p>
+      <h2>Explora por mascota, etapa, condición y necesidad</h2>
+      <p>Algunos productos aparecen en más de una sección porque cruzan criterios: especie, edad, condición, cuidado o tipo de producto.</p>
+    </div>
+  </div>
+</section>
+
+<% crossSections.forEach((section) => renderSection(section, 'cruce')) %>
 
 <button class="paw-button" type="button" data-open-preferences aria-label="Abrir panel de preferencias">🐾</button>
 <div class="modal" data-preferences-modal hidden>
@@ -223,10 +278,10 @@
         <summary><span>+</span> 3. Alimentación y salud</summary>
         <div class="form-grid two-columns">
           <label>Línea de comida
-            <select name="foodLine"><option value="">Sin responder</option><option value="comercial">Comercial</option><option value="medicada">Medicada / veterinaria</option></select>
+            <select name="foodLine" data-food-line-select><option value="">Sin responder</option><option value="comercial">Comercial</option><option value="medicada">Medicada / veterinaria</option></select><small class="field-hint" data-food-hint>La línea comercial/medicada aplica específicamente a comida.</small>
           </label>
           <label>Condición medicada
-            <select name="medicalCondition"><option value="">Ninguna / no sé</option><option value="renal">Renal</option><option value="hepática">Hepática</option><option value="cardíaca">Cardíaca</option><option value="urinaria">Urinaria</option><option value="sobrepeso">Sobrepeso</option><option value="gastrointestinal">Gastrointestinal</option><option value="osteoarticular">Osteoarticular</option><option value="cáncer">Cáncer</option><option value="dermatológico">Dermatológico</option></select>
+            <select name="medicalCondition" data-medical-condition-select><option value="">Ninguna / no sé</option><option value="renal">Renal</option><option value="hepática">Hepática</option><option value="cardíaca">Cardíaca</option><option value="urinaria">Urinaria</option><option value="sobrepeso">Sobrepeso</option><option value="gastrointestinal">Gastrointestinal</option><option value="osteoarticular">Osteoarticular</option><option value="cáncer">Cáncer</option><option value="dermatológico">Dermatológico</option></select>
           </label>
         </div>
       </details>
