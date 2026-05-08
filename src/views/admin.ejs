@@ -1,0 +1,21 @@
+<section class="section admin">
+  <h1>Panel administrativo de mercado</h1>
+  <div class="kpis">
+    <div><strong><%= usersCount %></strong><span>Clientes</span></div>
+    <div><strong><%= cartsCount %></strong><span>Items en carrito</span></div>
+    <div><strong><%= topProducts.reduce((total, product) => total + product.views, 0) %></strong><span>Vistas de productos</span></div>
+  </div>
+  <div class="charts">
+    <canvas data-labels='<%- JSON.stringify(eventCounts.map((item) => item.eventType)) %>' data-values='<%- JSON.stringify(eventCounts.map((item) => Number(item.total))) %>'></canvas>
+    <canvas data-labels='<%- JSON.stringify(categoryViews.map((item) => item.category)) %>' data-values='<%- JSON.stringify(categoryViews.map((item) => Number(item.total || 0))) %>'></canvas>
+  </div>
+  <h2>Productos más vistos</h2>
+  <table>
+    <thead><tr><th>Producto</th><th>Categoría</th><th>Marca</th><th>Vistas</th></tr></thead>
+    <tbody>
+      <% topProducts.forEach((product) => { %>
+        <tr><td><%= product.name %></td><td><%= product.category %></td><td><%= product.brand %></td><td><%= product.views %></td></tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
