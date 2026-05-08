@@ -1,6 +1,25 @@
 # PetMarket Seguro
 
-Aplicación web tipo e-commerce de mascotas creada con **Node.js + Express** y estructura **MVC**. Incluye home con banner, barra de navegación, accesos de perfil/tienda/carrito, personalización con botón de huella, carrito para clientes verificados, panel administrador con métricas y configuración lista para servidores/Railway.
+PetMarket Seguro es una aplicación web tipo e-commerce de mascotas creada con **Node.js + Express**, estructura **MVC**, vistas **EJS**, base de datos **MySQL/Sequelize**, modo claro/oscuro y configuración lista para desplegar en **Railway**.
+
+La experiencia incluye home con banner publicitario, navegación profesional, accesos de perfil/tienda/carrito, personalización con botón de huella, carrito para clientes verificados, panel administrador con métricas y registro de analítica para investigación de mercado.
+
+## Características principales
+
+- **Arquitectura MVC**: rutas, controladores, modelos, servicios, vistas y assets separados.
+- **Personalización por mascota**: preguntas opcionales para especie, tamaño, edad, comida comercial/medicada, condiciones, shampoo, lociones, accesorios y juguetes.
+- **Recomendaciones**: prioriza productos según perfil de mascota y vistas.
+- **Autenticación de clientes**: registro solo con Gmail, captcha básico, código temporal y contraseñas con hash.
+- **Administrador seguro**: no se registra desde la web; se configura con `ADMIN_EMAIL` y `ADMIN_PASSWORD_HASH`.
+- **Analítica**: guarda navegación, vistas, preferencias y carrito para panel administrativo.
+- **Modo oscuro**: selector de tema con persistencia en `localStorage`.
+- **Deploy-ready**: `railway.json`, `Procfile`, `/health`, `0.0.0.0:$PORT` y soporte `MYSQL_URL`/`DATABASE_URL`.
+
+## Requisitos
+
+- Node.js 18 o superior.
+- MySQL local o servicio MySQL en Railway.
+- npm para instalar dependencias.
 
 ## Inicio rápido local
 
@@ -12,7 +31,29 @@ npm start
 
 La aplicación local queda en `http://localhost:3000` si no defines otra variable `PORT`.
 
-## Estructura MVC
+## Variables principales
+
+```bash
+NODE_ENV=development
+PORT=3000
+MYSQL_URL=mysql://usuario:clave@host:puerto/base
+DATABASE_URL=mysql://usuario:clave@host:puerto/base
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=petmarket
+DB_USER=root
+DB_PASSWORD=password
+DB_DIALECT=mysql
+SESSION_SECRET=cambia-esto-por-una-clave-larga
+SECURE_COOKIES=false
+ADMIN_EMAIL=admin@gmail.com
+ADMIN_PASSWORD_HASH=hash-generado-con-bcryptjs
+VERIFICATION_CODE_TTL_MINUTES=10
+```
+
+Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL` porque el servicio MySQL la expone automáticamente.
+
+## Estructura del proyecto
 
 ```text
 server.js                 # Arranque HTTP y conexión de base de datos
@@ -23,51 +64,113 @@ src/models/               # Modelos Sequelize para MySQL
 src/routes/               # Rutas web de Express
 src/services/             # Lógica de catálogo, sesión, seguridad y analítica
 src/views/                # Vistas EJS y layout
-public/css, public/js     # Estilos y JavaScript del navegador
+public/css, public/js     # Estilos, modo oscuro y JavaScript del navegador
 docs/                     # Documentación técnica y despliegue Railway
+railway.json              # Configuración de deploy Railway
+Procfile                  # Proceso web compatible con servidores tipo Heroku/Railway
 ```
 
-## Variables principales
+## Pasos para desplegar en Railway
+
+### 1. Subir el proyecto a GitHub
 
 ```bash
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=petmarket
-DB_USER=root
-DB_PASSWORD=password
-DB_DIALECT=mysql
-MYSQL_URL=mysql://usuario:clave@host:puerto/base
-SESSION_SECRET=cambia-esto
+git add .
+git commit -m "Preparar PetMarket para Railway"
+git push origin main
+```
+
+### 2. Crear el proyecto en Railway
+
+1. Entra a Railway.
+2. Crea un proyecto nuevo.
+3. Selecciona **Deploy from GitHub repo**.
+4. Elige este repositorio.
+5. Railway detectará Node.js con Nixpacks y usará `npm start` desde `railway.json`.
+
+### 3. Añadir MySQL en Railway
+
+1. Dentro del proyecto, agrega un nuevo servicio **MySQL**.
+2. En el servicio web, crea una variable:
+
+```bash
+MYSQL_URL=${{MySQL.MYSQL_URL}}
+```
+
+Si tu Railway muestra otro nombre de servicio, cambia `MySQL` por el nombre real del plugin.
+
+### 4. Configurar variables de producción
+
+En el servicio web de Railway agrega:
+
+```bash
+NODE_ENV=production
+SESSION_SECRET=una-clave-larga-aleatoria-y-privada
+SECURE_COOKIES=true
+MYSQL_URL=${{MySQL.MYSQL_URL}}
 ADMIN_EMAIL=admin@gmail.com
-ADMIN_PASSWORD_HASH=hash-generado-con-bcryptjs
+ADMIN_PASSWORD_HASH=pega-aqui-el-hash-bcrypt
 VERIFICATION_CODE_TTL_MINUTES=10
 ```
 
-Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL`.
+No configures `PORT`; Railway lo define automáticamente.
 
-## Despliegue en Railway
+### 5. Generar contraseña del administrador
 
-El proyecto incluye `railway.json`, `Procfile`, `/health` y escucha en `0.0.0.0:$PORT`, que es el formato esperado para servidores Railway.
-
-Guía completa: [`docs/DEPLOY_RAILWAY.md`](docs/DEPLOY_RAILWAY.md).
-
-## Documentación técnica
-
-Arquitectura, controladores, servicios, modelos y flujos: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
-## Generar `ADMIN_PASSWORD_HASH`
+En tu computadora local, después de instalar dependencias:
 
 ```bash
 node -e "const bcrypt=require('bcryptjs'); bcrypt.hash('tu-clave-segura',12).then(console.log)"
 ```
+
+Copia el resultado completo en `ADMIN_PASSWORD_HASH`. El administrador **no** se crea desde el registro público.
+
+### 6. Desplegar y verificar
+
+1. Railway ejecutará el build automáticamente.
+2. Abre la URL pública generada.
+3. Visita `/health`; debe responder:
+
+```json
+{"status":"ok"}
+```
+
+4. Registra un cliente con correo `@gmail.com`.
+5. Revisa los logs del deploy para ver el código de verificación del prototipo.
+6. Inicia sesión como administrador con `ADMIN_EMAIL` y la contraseña real usada para crear el hash.
+7. Entra a `/admin` y valida métricas, gráficos y tabla de productos vistos.
+
+## Comandos útiles
+
+```bash
+npm start          # Ejecuta el servidor
+npm run dev        # Ejecuta con nodemon en desarrollo
+npm test           # Revisa sintaxis JS del servidor, src y public
+```
+
+## Documentación adicional
+
+- Guía completa de despliegue: [`docs/DEPLOY_RAILWAY.md`](docs/DEPLOY_RAILWAY.md).
+- Arquitectura, controladores, servicios y flujos: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Seguridad incluida en el prototipo
 
 - Registro solo para clientes con correo `@gmail.com`.
 - Captcha matemático básico y código de verificación con expiración antes de crear la cuenta.
 - Contraseñas y códigos guardados con `bcryptjs`.
-- Rol administrador separado: no se registra desde la web, se habilita por variables de entorno.
+- Rol administrador separado mediante variables de entorno.
 - Registro de navegación, vistas, preferencias y carrito en MySQL mediante Sequelize.
 - Middleware `helmet`, cookies `httpOnly`, soporte para cookies seguras en producción y separación por controladores/servicios.
 
-Antes de producción real, añade SMTP, protección CSRF, rate limiting, migraciones Sequelize, backups, auditoría de pagos y políticas de privacidad.
+## Recomendaciones para producción real
+
+Antes de procesar compras reales o datos sensibles, agrega:
+
+- Envío real de correos con SMTP, SendGrid, Mailgun, Amazon SES u otro proveedor transaccional.
+- Protección CSRF para formularios POST.
+- Rate limiting para login, registro y verificación.
+- Migraciones Sequelize en lugar de depender solo de `sequelize.sync()`.
+- Backups automáticos de MySQL.
+- Pasarela de pago certificada.
+- Políticas de privacidad, términos y cumplimiento de protección de datos.
+- Observabilidad con logs estructurados y alertas.

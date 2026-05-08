@@ -3,21 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PetMarket Seguro: e-commerce de mascotas con recomendaciones personalizadas, carrito para clientes y analítica administrativa.">
+  <meta name="theme-color" content="#ff5a2f">
   <title><%= title ? `${title} · ` : '' %>PetMarket Seguro</title>
+  <script>
+    // Evita parpadeo visual: aplica el tema guardado antes de cargar estilos.
+    const savedTheme = localStorage.getItem('petmarket-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = savedTheme || (prefersDark ? 'dark' : 'light');
+  </script>
   <link rel="stylesheet" href="/css/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
   <script src="/js/app.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
   <header class="topbar">
-    <a class="brand" href="/">🐾 PetMarket Seguro</a>
-    <nav class="nav">
+    <a class="brand" href="/" aria-label="Ir al inicio de PetMarket Seguro">🐾 PetMarket Seguro</a>
+    <nav class="nav" aria-label="Navegación principal">
       <a href="/">Inicio</a>
       <a href="/#marcas">Marcas</a>
       <a href="/#productos">Productos</a>
       <% if (session.admin) { %><a href="/admin">Admin</a><% } %>
     </nav>
     <div class="header-icons" aria-label="Accesos rápidos">
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Cambiar modo claro u oscuro">🌙</button>
       <% if (currentUser) { %>
         <a title="Perfil" href="/logout">👤 <%= currentUser.email.split('@')[0] %></a>
       <% } else { %>
@@ -28,7 +38,11 @@
     </div>
   </header>
   <%- include('../partials/flash') %>
-  <main><%- body %></main>
-  <footer><strong>PetMarket Seguro</strong> — Prototipo Express/MVC con marcas oficiales enlazadas; no copia logotipos ni contenido propietario.</footer>
+  <main id="contenido" tabindex="-1"><%- body %></main>
+  <footer>
+    <strong>PetMarket Seguro</strong>
+    <span>Prototipo Express/MVC profesional, preparado para Railway y MySQL.</span>
+    <span>Marcas oficiales enlazadas; no copia logotipos ni contenido propietario.</span>
+  </footer>
 </body>
 </html>
