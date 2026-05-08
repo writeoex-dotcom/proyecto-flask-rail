@@ -1,0 +1,15 @@
+<section class="section">
+  <h1>Carrito de compra</h1>
+  <% if (items.length) { %>
+    <table>
+      <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Estado</th></tr></thead>
+      <tbody>
+        <% items.forEach((item) => { %>
+          <tr><td><%= item.Product.name %></td><td><%= item.quantity %></td><td>S/ <%= Number(item.Product.price).toFixed(2) %></td><td><%= item.status %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>Tu carrito está vacío.</p>
+  <% } %>
+</section>
