@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Banner de publicidad</p>
+    <h1>Todo para tu mascota, recomendado según su perfil</h1>
+    <p>Compra comida comercial o medicada, shampoo, lociones, accesorios y juguetes con una experiencia personalizable.</p>
+    <a class="cta" href="#productos">Ver ofertas</a>
+  </div>
+  <div class="ad-card">
+    <span>-25%</span>
+    <strong>Campaña de bienestar</strong>
+    <p>Completa la huella de preferencias y priorizaremos productos para tu perro, gato, ave, hamster o pez.</p>
+  </div>
+</section>
+
+<section class="preference-summary">
+  <h2>Perfil de mascota</h2>
+  {% if preference %}
+    <div class="chips">
+      <span>{{ preference.size or 'tamaño pendiente' }}</span>
+      <span>{{ preference.species or 'mascota pendiente' }}</span>
+      <span>{{ preference.life_stage or 'edad pendiente' }}</span>
+      <span>{{ preference.food_line or 'línea pendiente' }}</span>
+      <span>{{ preference.medical_condition or 'condición pendiente' }}</span>
+    </div>
+  {% else %}
+    <p>Aún no hay preferencias. Toca la huella inferior para responder preguntas opcionales.</p>
+  {% endif %}
+</section>
+
+<section id="marcas" class="section">
+  <h2>Marcas oficiales y reales</h2>
+  <div class="brand-grid">
+    {% for brand in brands %}
+      <a class="brand-card" href="{{ brand.url }}" target="_blank" rel="noopener noreferrer">
+        <div class="brand-logo">{{ brand.name[0] }}</div>
+        <h3>{{ brand.name }}</h3>
+        <p>{{ brand.kind }}</p>
+        <div class="overlay">Acerca más de {{ brand.name }} →</div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="productos" class="section">
+  <h2>Productos recomendados</h2>
+  <div class="product-grid">
+    {% for product in products %}
+      <article class="product-card">
+        <div class="product-image">{{ product.category|capitalize }}</div>
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.brand }} · {{ product.species }} · {{ product.life_stage }}</p>
+        <p class="tags">{{ product.line_type }} · {{ product.tags }}</p>
+        <strong>S/ {{ '%.2f'|format(product.price) }}</strong>
+        <div class="actions">
+          <a href="{{ url_for('main.product_detail', product_id=product.id) }}">Ver</a>
+          <form method="post" action="{{ url_for('main.add_cart', product_id=product.id) }}">
+            <button type="submit">Agregar</button>
+          </form>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block preferences_modal %}
+<div class="modal" data-preferences-modal hidden>
+  <form class="modal-card" method="post" action="{{ url_for('main.preferences') }}">
+    <button class="close" type="button" data-close-preferences>×</button>
+    <h2>Personaliza con la huella</h2>
+    <label>Tamaño de mascota
+      <select name="size">
+        <option value="">Sin responder</option>
+        <option value="pequeña">Pequeña: aves, hamsters, peces</option>
+        <option value="mediano">Mediano: gato o perro</option>
+        <option value="grande">Grande</option>
+      </select>
+    </label>
+    <label>Tipo de mascota
+      <select name="species">
+        <option value="">Sin responder</option>
+        <option value="perro">Perro</option>
+        <option value="gato">Gato</option>
+        <option value="ave">Ave</option>
+        <option value="hamster">Hamster</option>
+        <option value="pez">Pez</option>
+      </select>
+    </label>
+    <label>Edad
+      <select name="age_range">
+        <option value="">Sin responder</option>
+        <option value="menos_1">Menos de 1 año: cachorro</option>
+        <option value="1_6">1 a 6 años: adulto</option>
+        <option value="mas_6">Más de 6 años: adulto mayor</option>
+      </select>
+    </label>
+    <label>Línea de comida
+      <select name="food_line">
+        <option value="">Sin responder</option>
+        <option value="comercial">Comercial</option>
+        <option value="medicada">Medicada</option>
+      </select>
+    </label>
+    <label>Condición medicada
+      <select name="medical_condition">
+        <option value="">Ninguna / no sé</option>
+        <option>renal</option><option>hepática</option><option>cardíaca</option><option>urinaria</option>
+        <option>sobrepeso</option><option>gastrointestinal</option><option>osteoarticular</option>
+        <option>cáncer</option><option>dermatológico</option>
+      </select>
+    </label>
+    <label>Shampoo: marca o línea <input name="shampoo_brand" placeholder="Ej. Pro Plan, comercial"></label>
+    <label>Condición del pelo <input name="coat_condition" placeholder="Pelo corto, largo, sensible"></label>
+    <label>Sensibilidad de piel para lociones <input name="skin_sensitivity" placeholder="Normal, sensible, alérgica"></label>
+    <label>Tamaño del juguete <select name="toy_size"><option value="">Sin responder</option><option>pequeño</option><option>mediano</option><option>grande</option></select></label>
+    <label>Dureza del juguete <select name="toy_hardness"><option value="">Sin responder</option><option>suave</option><option>media</option><option>dura</option></select></label>
+    <button class="cta" type="submit">Guardar preferencias</button>
+  </form>
+</div>
+{% endblock %}
