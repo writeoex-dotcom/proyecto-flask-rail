@@ -13,17 +13,31 @@
 </section>
 
 <section class="preference-summary">
-  <h2>Perfil de mascota</h2>
-  <% if (preference) { %>
-    <div class="chips">
-      <span><%= preference.size || 'tamaño pendiente' %></span>
-      <span><%= preference.species || 'mascota pendiente' %></span>
-      <span><%= preference.lifeStage || 'edad pendiente' %></span>
-      <span><%= preference.foodLine || 'línea pendiente' %></span>
-      <span><%= preference.medicalCondition || 'condición pendiente' %></span>
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Panel de preferencias</p>
+      <h2>Hasta 2 mascotas con respuestas coherentes</h2>
+    </div>
+    <button class="cta" type="button" data-open-preferences>Configurar huella</button>
+  </div>
+  <% const savedPreferences = typeof preferences !== 'undefined' ? preferences : (preference ? [preference] : []); %>
+  <% if (savedPreferences.length) { %>
+    <div class="preference-cards">
+      <% savedPreferences.forEach((item) => { %>
+        <article class="preference-card">
+          <strong><%= item.profileName || `Mascota ${item.preferenceSlot || 1}` %></strong>
+          <div class="chips">
+            <span><%= item.size || 'tamaño pendiente' %></span>
+            <span><%= item.species || 'mascota pendiente' %></span>
+            <span><%= item.lifeStage || 'edad pendiente' %></span>
+            <span><%= item.foodLine || 'línea pendiente' %></span>
+            <span><%= item.medicalCondition || 'sin condición' %></span>
+          </div>
+        </article>
+      <% }) %>
     </div>
   <% } else { %>
-    <p>Aún no hay preferencias. Toca la huella inferior para responder preguntas opcionales.</p>
+    <p>Aún no hay preferencias. Toca la huella inferior para responder preguntas opcionales o cierra con X si no deseas configurar ahora.</p>
   <% } %>
 </section>
 
@@ -61,32 +75,69 @@
   </div>
 </section>
 
-<button class="paw-button" type="button" data-open-preferences>🐾</button>
+<button class="paw-button" type="button" data-open-preferences aria-label="Abrir panel de preferencias">🐾</button>
 <div class="modal" data-preferences-modal hidden>
-  <form class="modal-card" method="post" action="/preferences">
-    <button class="close" type="button" data-close-preferences>×</button>
-    <h2>Personaliza con la huella</h2>
-    <label>Tamaño de mascota
-      <select name="size"><option value="">Sin responder</option><option value="pequeña">Pequeña: aves, hamsters, peces</option><option value="mediano">Mediano: gato o perro</option><option value="grande">Grande</option></select>
-    </label>
-    <label>Tipo de mascota
-      <select name="species"><option value="">Sin responder</option><option value="perro">Perro</option><option value="gato">Gato</option><option value="ave">Ave</option><option value="hamster">Hamster</option><option value="pez">Pez</option></select>
-    </label>
-    <label>Edad
-      <select name="ageRange"><option value="">Sin responder</option><option value="menos_1">Menos de 1 año: cachorro</option><option value="1_6">1 a 6 años: adulto</option><option value="mas_6">Más de 6 años: adulto mayor</option></select>
-    </label>
-    <label>Línea de comida
-      <select name="foodLine"><option value="">Sin responder</option><option value="comercial">Comercial</option><option value="medicada">Medicada</option></select>
-    </label>
+  <form class="modal-card preference-form" method="post" action="/preferences" data-preference-form>
+    <button class="close" type="button" data-close-preferences aria-label="Cerrar preferencias">×</button>
+    <div class="modal-title">
+      <p class="eyebrow">Preferencias coherentes</p>
+      <h2>Configura hasta 2 mascotas</h2>
+      <p>Primero elige el tamaño. El formulario solo mostrará especies compatibles: pequeña = ave/hamster/pez, mediano = perro/gato, grande = perro. Puedes cerrar con X sin guardar.</p>
+    </div>
+    <div class="form-grid two-columns">
+      <label>Preferencia
+        <select name="preferenceSlot">
+          <option value="1">Mascota 1</option>
+          <option value="2">Mascota 2</option>
+        </select>
+      </label>
+      <label>Nombre de referencia
+        <input name="profileName" placeholder="Ej. Luna, Rocky o Mascota 1" maxlength="80">
+      </label>
+    </div>
+    <div class="form-grid two-columns">
+      <label>Tamaño de mascota
+        <select name="size" data-size-select>
+          <option value="">Sin responder</option>
+          <option value="pequeña">Pequeña: ave, hamster o pez</option>
+          <option value="mediano">Mediano: gato o perro</option>
+          <option value="grande">Grande: perro</option>
+        </select>
+      </label>
+      <label>Tipo de mascota
+        <select name="species" data-species-select>
+          <option value="">Primero elige tamaño</option>
+          <option value="perro" data-sizes="mediano,grande">Perro</option>
+          <option value="gato" data-sizes="mediano">Gato</option>
+          <option value="ave" data-sizes="pequeña">Ave</option>
+          <option value="hamster" data-sizes="pequeña">Hamster</option>
+          <option value="pez" data-sizes="pequeña">Pez</option>
+        </select>
+        <small class="field-hint" data-species-hint>La lista se ajusta al tamaño seleccionado.</small>
+      </label>
+    </div>
+    <div class="form-grid two-columns">
+      <label>Edad
+        <select name="ageRange"><option value="">Sin responder</option><option value="menos_1">Menos de 1 año: cachorro</option><option value="1_6">1 a 6 años: adulto</option><option value="mas_6">Más de 6 años: adulto mayor</option></select>
+      </label>
+      <label>Línea de comida
+        <select name="foodLine"><option value="">Sin responder</option><option value="comercial">Comercial</option><option value="medicada">Medicada</option></select>
+      </label>
+    </div>
     <label>Condición medicada
       <select name="medicalCondition"><option value="">Ninguna / no sé</option><option>renal</option><option>hepática</option><option>cardíaca</option><option>urinaria</option><option>sobrepeso</option><option>gastrointestinal</option><option>osteoarticular</option><option>cáncer</option><option>dermatológico</option></select>
     </label>
-    <label>Shampoo: marca o línea <input name="shampooBrand" placeholder="Ej. Pro Plan, comercial"></label>
-    <label>Condición del pelo <input name="coatCondition" placeholder="Pelo corto, largo, sensible"></label>
-    <label>Sensibilidad de piel para lociones <input name="lotionSkinSensitivity" placeholder="Normal, sensible, alérgica"></label>
-    <label>Accesorio preferido <input name="accessoryType" placeholder="Placa, collarín, cama"></label>
-    <label>Tamaño del juguete <select name="toySize"><option value="">Sin responder</option><option>pequeño</option><option>mediano</option><option>grande</option></select></label>
-    <label>Dureza del juguete <select name="toyHardness"><option value="">Sin responder</option><option>suave</option><option>media</option><option>dura</option></select></label>
-    <button class="cta" type="submit">Guardar preferencias</button>
+    <div class="form-grid two-columns">
+      <label>Shampoo: marca o línea <input name="shampooBrand" placeholder="Ej. Pro Plan, comercial"></label>
+      <label>Condición del pelo <input name="coatCondition" placeholder="Pelo corto, largo, sensible"></label>
+      <label>Sensibilidad de piel para lociones <input name="lotionSkinSensitivity" placeholder="Normal, sensible, alérgica"></label>
+      <label>Accesorio preferido <input name="accessoryType" placeholder="Placa, collarín, cama"></label>
+      <label>Tamaño del juguete <select name="toySize"><option value="">Sin responder</option><option>pequeño</option><option>mediano</option><option>grande</option></select></label>
+      <label>Dureza del juguete <select name="toyHardness"><option value="">Sin responder</option><option>suave</option><option>media</option><option>dura</option></select></label>
+    </div>
+    <div class="modal-actions">
+      <button class="secondary-button" type="button" data-close-preferences>No configurar ahora</button>
+      <button class="cta" type="submit">Guardar preferencia</button>
+    </div>
   </form>
 </div>

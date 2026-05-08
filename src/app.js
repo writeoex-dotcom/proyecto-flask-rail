@@ -20,8 +20,12 @@ function getFallbackProducts() {
   }));
 }
 
+function getFallbackPreferences(req) {
+  return (req.session?.fallbackPreferences || []).filter(Boolean);
+}
+
 function getFallbackPreference(req) {
-  return req.session?.fallbackPreference || null;
+  return getFallbackPreferences(req)[0] || null;
 }
 
 function pushFlash(req, res, type, message) {
@@ -37,7 +41,8 @@ function renderDatabaseOfflinePage(req, res, next) {
 
   if (req.method === 'GET' && req.path === '/') {
     pushFlash(req, res, 'warning', offlineWarning);
-    return res.render('home', { title: 'Inicio', brands, products, preference: getFallbackPreference(req) });
+    const preferences = getFallbackPreferences(req);
+    return res.render('home', { title: 'Inicio', brands, products, preference: preferences[0] || null, preferences });
   }
 
   if (req.method === 'GET' && req.path.startsWith('/product/')) {
@@ -52,9 +57,17 @@ function renderDatabaseOfflinePage(req, res, next) {
   }
 
   if (req.method === 'POST' && req.path === '/preferences') {
-    req.session.fallbackPreference = {
-      size: req.body.size || '',
-      species: req.body.species || '',
+    const preferenceSlot = Number(req.body.preferenceSlot) === 2 ? 2 : 1;
+    const size = req.body.size || '';
+    const speciesBySize = { pequeña: ['ave', 'hamster', 'pez'], mediano: ['perro', 'gato'], grande: ['perro'] };
+    const allowedSpecies = speciesBySize[size] || ['perro', 'gato', 'ave', 'hamster', 'pez'];
+    const species = allowedSpecies.includes(req.body.species) ? req.body.species : '';
+    const fallbackPreferences = getFallbackPreferences(req);
+    fallbackPreferences[preferenceSlot - 1] = {
+      preferenceSlot,
+      profileName: String(req.body.profileName || '').trim() || `Mascota ${preferenceSlot}`,
+      size,
+      species,
       ageRange: req.body.ageRange || '',
       lifeStage: ({ menos_1: 'cachorro', '1_6': 'adulto', mas_6: 'adulto mayor' })[req.body.ageRange] || '',
       foodLine: req.body.foodLine || '',
@@ -66,7 +79,8 @@ function renderDatabaseOfflinePage(req, res, next) {
       toySize: req.body.toySize || '',
       toyHardness: req.body.toyHardness || '',
     };
-    pushFlash(req, res, 'success', 'Preferencias guardadas temporalmente mientras MySQL conecta.');
+    req.session.fallbackPreferences = fallbackPreferences.slice(0, 2);
+    pushFlash(req, res, 'success', `Preferencias de ${fallbackPreferences[preferenceSlot - 1].profileName} guardadas temporalmente mientras MySQL conecta.`);
     return res.redirect('/');
   }
 

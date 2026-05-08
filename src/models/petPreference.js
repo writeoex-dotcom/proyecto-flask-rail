@@ -1,6 +1,8 @@
 module.exports = (sequelize, DataTypes) => sequelize.define('PetPreference', {
   userId: { type: DataTypes.INTEGER, allowNull: true },
   sessionKey: { type: DataTypes.STRING(120), allowNull: false },
+  preferenceSlot: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1, validate: { min: 1, max: 2 } },
+  profileName: { type: DataTypes.STRING(80), allowNull: false, defaultValue: 'Mascota 1' },
   size: DataTypes.STRING(40),
   species: DataTypes.STRING(40),
   ageRange: DataTypes.STRING(40),
@@ -18,6 +20,7 @@ module.exports = (sequelize, DataTypes) => sequelize.define('PetPreference', {
   indexes: [
     { fields: ['userId'] },
     { fields: ['sessionKey'] },
+    { fields: ['sessionKey', 'preferenceSlot'] },
     { fields: ['species', 'lifeStage'] },
   ],
 });

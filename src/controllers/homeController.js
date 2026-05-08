@@ -5,10 +5,13 @@ const { getRecommendedProducts, incrementProductView } = require('../services/ca
 const { logEvent } = require('../services/analyticsService');
 
 async function home(req, res) {
-  const preference = await PetPreference.findOne({ where: { sessionKey: ensureSessionKey(req) } });
-  const products = await getRecommendedProducts(preference);
-  await logEvent(req, 'home_view', { path: '/' });
-  res.render('home', { title: 'Inicio', brands, products, preference });
+  const preferences = await PetPreference.findAll({
+    where: { sessionKey: ensureSessionKey(req) },
+    order: [['preferenceSlot', 'ASC']],
+  });
+  const products = await getRecommendedProducts(preferences);
+  await logEvent(req, 'home_view', { path: '/', preferenceCount: preferences.length });
+  res.render('home', { title: 'Inicio', brands, products, preference: preferences[0] || null, preferences });
 }
 
 async function productDetail(req, res) {

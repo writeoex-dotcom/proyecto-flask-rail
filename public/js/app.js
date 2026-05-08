@@ -19,12 +19,60 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('[data-open-preferences]')?.addEventListener('click', () => {
     if (modal) modal.hidden = false;
   });
-  document.querySelector('[data-close-preferences]')?.addEventListener('click', () => {
-    if (modal) modal.hidden = true;
+  document.querySelectorAll('[data-close-preferences]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (modal) modal.hidden = true;
+    });
   });
   modal?.addEventListener('click', (event) => {
     if (event.target === modal) modal.hidden = true;
   });
+
+  const preferenceForm = document.querySelector('[data-preference-form]');
+  const sizeSelect = preferenceForm?.querySelector('[data-size-select]');
+  const speciesSelect = preferenceForm?.querySelector('[data-species-select]');
+  const speciesHint = preferenceForm?.querySelector('[data-species-hint]');
+  const speciesLabels = {
+    '': 'Primero elige tamaño',
+    perro: 'Perro',
+    gato: 'Gato',
+    ave: 'Ave',
+    hamster: 'Hamster',
+    pez: 'Pez',
+  };
+  const coherentSpecies = {
+    pequeña: ['ave', 'hamster', 'pez'],
+    mediano: ['perro', 'gato'],
+    grande: ['perro'],
+  };
+
+  function updateSpeciesOptions() {
+    if (!sizeSelect || !speciesSelect) return;
+    const selectedSize = sizeSelect.value;
+    const allowed = coherentSpecies[selectedSize] || [];
+    const currentSpecies = speciesSelect.value;
+    speciesSelect.innerHTML = '';
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = selectedSize ? 'Selecciona una mascota compatible' : 'Primero elige tamaño';
+    speciesSelect.appendChild(placeholder);
+    allowed.forEach((species) => {
+      const option = document.createElement('option');
+      option.value = species;
+      option.textContent = speciesLabels[species];
+      speciesSelect.appendChild(option);
+    });
+    speciesSelect.disabled = !selectedSize;
+    speciesSelect.value = allowed.includes(currentSpecies) ? currentSpecies : '';
+    if (speciesHint) {
+      speciesHint.textContent = selectedSize
+        ? `Opciones compatibles: ${allowed.map((species) => speciesLabels[species]).join(', ')}.`
+        : 'La lista se ajusta al tamaño seleccionado.';
+    }
+  }
+
+  updateSpeciesOptions();
+  sizeSelect?.addEventListener('change', updateSpeciesOptions);
 
   document.querySelectorAll('canvas[data-labels]').forEach((canvas, index) => {
     if (!window.Chart) return;

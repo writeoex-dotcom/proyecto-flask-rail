@@ -126,3 +126,17 @@ footer { display: grid; gap: 6px; text-align: center; padding: 36px; color: var(
 .mini-checks { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 .mini-checks small { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; font-weight: 800; }
 @media (max-width: 920px) { .petshop-header { grid-template-columns: 1fr; } .petshop-actions, .petshop-nav { justify-content: flex-start; } .status-hero { grid-template-columns: 1fr; } }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.preference-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
+.preference-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 10px 24px #0000000a; }
+.preference-card strong { display: block; margin-bottom: 10px; color: var(--primary-strong); }
+.preference-form { gap: 16px; }
+.modal-title { display: grid; gap: 4px; }
+.modal-title h2, .modal-title p { margin: 0; }
+.form-grid { display: grid; gap: 12px; }
+.two-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.field-hint { color: var(--muted); font-weight: 700; line-height: 1.4; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 14px; }
+.secondary-button { background: var(--bg-soft) !important; color: var(--dark) !important; border: 1px solid var(--line) !important; box-shadow: none !important; }
+select:disabled { opacity: .7; cursor: not-allowed; }
+@media (max-width: 680px) { .two-columns { grid-template-columns: 1fr; } .modal-actions { justify-content: stretch; } .modal-actions button { width: 100%; } }
