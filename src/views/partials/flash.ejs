@@ -1,0 +1,5 @@
+<% Object.entries(flash).forEach(([category, messages]) => { %>
+  <% messages.forEach((message) => { %>
+    <div class="flash <%= category %>"><%= message %></div>
+  <% }) %>
+<% }) %>
