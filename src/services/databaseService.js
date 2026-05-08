@@ -94,6 +94,20 @@ async function initializeDatabase(sessionStore, readiness) {
     return false;
   }
 
+  if (databaseConfig.isRailway && databaseConfig.configurationWarnings.length) {
+    const warningMessage = databaseConfig.configurationWarnings.join(' ');
+    if (readiness) {
+      readiness.lastDatabaseError = warningMessage;
+      readiness.lastDatabaseFailure = {
+        message: warningMessage,
+        code: 'CONFIG_WARNING',
+        advice: databaseConfig.summary.help,
+      };
+    }
+    console.error(warningMessage, databaseConfig.summary);
+    return false;
+  }
+
   if (databaseConfig.hostedPlatform && !databaseConfig.hasExplicitDatabaseConfig) {
     if (readiness) {
       readiness.lastDatabaseError = databaseConfig.missingHostedConfigMessage;

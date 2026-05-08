@@ -56,3 +56,55 @@ Esto evita instalar herramientas de desarrollo como `nodemon` en Railway y reduc
 - Revisa `/ready`: debe mostrar `usesRailwayInternalHost: true`, `dnsResultOrder`, `presentSeparateKeys` con las variables recibidas y `missingSeparateKeys: []`. Si `databaseReady` sigue en `false`, usa `lastDatabaseFailure.code` y `lastDatabaseFailure.advice` para distinguir DNS, timeout, credenciales o base inexistente.
 - Mientras `databaseReady` está en `false`, puedes navegar el catálogo y páginas principales en modo temporal; registro, carrito persistente y admin quedan completos cuando MySQL conecta.
 - Si las tablas no existen, espera a que `/ready` pase a `databaseReady: true` o ejecuta `npm run db:sync`. Para actualizar modelos existentes usa temporalmente `DB_SYNC_ALTER=true`.
+
+## Conectar MySQL paso a paso en Railway
+
+### Opción recomendada: URL completa
+
+En el servicio **web** agrega una Variable Reference:
+
+```bash
+MYSQL_URL=${{MySQL.MYSQL_URL}}
+```
+
+Después haz **Redeploy** y abre `/ready`. Debe mostrar:
+
+```json
+{
+  "databaseReady": true,
+  "databaseConfig": {
+    "usingUrl": true,
+    "urlSource": "MYSQL_URL",
+    "configurationWarnings": []
+  }
+}
+```
+
+### Opción alternativa: variables separadas
+
+Si no usas `MYSQL_URL`, en el servicio **web** agrega todas estas variables:
+
+```bash
+MYSQLHOST=mysql.railway.internal
+MYSQLPORT=3306
+MYSQLDATABASE=railway
+MYSQLUSER=root
+MYSQLPASSWORD=${{MySQL.MYSQLPASSWORD}}
+```
+
+No copies al servicio web los valores locales del `.env.example` (`DB_HOST=localhost`, `DB_NAME=petmarket`, `DB_PASSWORD=password`) porque Railway intentará conectarse a `localhost` dentro del contenedor web y fallará.
+
+### Diagnóstico rápido
+
+Ejecuta en Railway Shell o local después de instalar dependencias:
+
+```bash
+npm run db:diagnose
+```
+
+También revisa `/ready`:
+
+- `host: "localhost"` en Railway = falta `MYSQL_URL` o `MYSQLHOST`.
+- `configurationWarnings` con mensajes = corrige esas variables antes de redeploy.
+- `missingSeparateKeys` debe ser `[]` si usas variables separadas.
+- `usesRailwayInternalHost: true` confirma que `MYSQLHOST=mysql.railway.internal` fue tomado.

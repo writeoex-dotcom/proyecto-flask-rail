@@ -172,6 +172,29 @@ function listPresentKeys(names) {
   return names.filter((key) => Boolean(cleanEnvValue(process.env[key])));
 }
 
+
+function buildConfigurationWarnings() {
+  const warnings = [];
+  const mysqlKeysPresent = listPresentKeys(['MYSQLHOST', 'MYSQLPORT', 'MYSQLDATABASE', 'MYSQL_DATABASE', 'MYSQLUSER', 'MYSQLPASSWORD', 'MYSQL_ROOT_PASSWORD']);
+  const localDbDefaultsPresent = cleanEnvValue(process.env.DB_HOST) === 'localhost'
+    || cleanEnvValue(process.env.DB_NAME) === 'petmarket'
+    || cleanEnvValue(process.env.DB_PASSWORD) === 'password';
+
+  if (isRailway && host === 'localhost') {
+    warnings.push('Railway no puede conectar MySQL usando host localhost. Agrega MYSQL_URL=${{MySQL.MYSQL_URL}} o MYSQLHOST=mysql.railway.internal en el servicio web.');
+  }
+
+  if (isRailway && mysqlKeysPresent.length > 0 && localDbDefaultsPresent && !cleanEnvValue(process.env.MYSQLHOST) && !connectionUrl) {
+    warnings.push('Detecté variables MYSQL* mezcladas con DB_* locales de ejemplo. En Railway elimina DB_HOST=localhost/DB_NAME=petmarket/DB_PASSWORD=password o agrega MYSQLHOST.');
+  }
+
+  if (isRailway && !connectionUrl && !cleanEnvValue(process.env.MYSQLHOST) && (cleanEnvValue(process.env.MYSQL_DATABASE) || cleanEnvValue(process.env.MYSQLDATABASE))) {
+    warnings.push('Tienes nombre de base MySQL, pero falta MYSQLHOST. La app usará DB_HOST/local si existe; agrega MYSQLHOST=mysql.railway.internal o usa MYSQL_URL.');
+  }
+
+  return warnings;
+}
+
 const missingHostedConfigMessage = hostedPlatform === 'Railway'
   ? 'No se detectaron variables MySQL en el servicio web. En Railway agrega una Variable Reference como MYSQL_URL=${{MySQL.MYSQL_URL}} o MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}} dentro del servicio web.'
   : 'No se detectaron variables MySQL en el servicio web. En Render agrega MYSQL_URL con la URL de tu MySQL externo en Environment Variables o al crear el Blueprint.';
@@ -184,6 +207,8 @@ const incompleteSeparateConfigMessage = missingSeparateKeys.length
   ? `Configuración MySQL incompleta (${separateConfigMode}). Faltan variables: ${missingSeparateKeys.join(', ')}. En Railway usa MYSQL_URL=\${{MySQL.MYSQL_URL}} o define MYSQLHOST=mysql.railway.internal, MYSQLPORT, MYSQLDATABASE, MYSQLUSER y MYSQLPASSWORD en el servicio web.`
   : null;
 
+const configurationWarnings = buildConfigurationWarnings();
+const configurationWarningHelp = configurationWarnings.length ? configurationWarnings.join(' ') : null;
 
 const databaseConfig = {
   database,
@@ -203,6 +228,7 @@ const databaseConfig = {
   incompleteSeparateConfigMessage,
   missingSeparateKeys,
   separateConfigMode,
+  configurationWarnings,
   railwayInternalHelp,
   usesRailwayInternalHost,
   dnsResultOrder: typeof dns.getDefaultResultOrder === 'function' ? dns.getDefaultResultOrder() : dnsResultOrder,
@@ -221,6 +247,7 @@ const databaseConfig = {
     presentSeparateKeys: listPresentKeys(separateVariableNames),
     missingSeparateKeys,
     separateConfigMode,
+    configurationWarnings,
     hasExplicitDatabaseConfig,
     isRailway,
     isRender,
@@ -234,7 +261,7 @@ const databaseConfig = {
     dnsResultOrder: typeof dns.getDefaultResultOrder === 'function' ? dns.getDefaultResultOrder() : dnsResultOrder,
     syncAlter: process.env.DB_SYNC_ALTER === 'true',
     connectTimeoutMs: positiveNumber(process.env.DB_CONNECT_TIMEOUT_MS || process.env.MYSQL_CONNECT_TIMEOUT_MS, 20000),
-    help: incompleteSeparateConfigMessage || railwayInternalHelp || (hostedPlatform && !hasExplicitDatabaseConfig ? missingHostedConfigMessage : null),
+    help: incompleteSeparateConfigMessage || configurationWarningHelp || railwayInternalHelp || (hostedPlatform && !hasExplicitDatabaseConfig ? missingHostedConfigMessage : null),
   },
 };
 

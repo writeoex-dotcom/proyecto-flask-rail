@@ -70,6 +70,12 @@ Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Rail
 
 ## Crear/sincronizar modelos en MySQL
 
+Antes de sincronizar, revisa que Railway no esté usando variables locales como `DB_HOST=localhost`:
+
+```bash
+npm run db:diagnose
+```
+
 La app crea las tablas automáticamente al iniciar con `sequelize.sync()`. Si quieres forzar la creación desde consola antes de abrir la web, ejecuta:
 
 ```bash
