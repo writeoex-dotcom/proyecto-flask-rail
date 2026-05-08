@@ -108,3 +108,52 @@ También revisa `/ready`:
 - `configurationWarnings` con mensajes = corrige esas variables antes de redeploy.
 - `missingSeparateKeys` debe ser `[]` si usas variables separadas.
 - `usesRailwayInternalHost: true` confirma que `MYSQLHOST=mysql.railway.internal` fue tomado.
+
+
+## Los logs de MySQL dicen “ready for connections”, pero la web no conecta
+
+Los logs como estos:
+
+```text
+/usr/sbin/mysqld: ready for connections. Version: '9.4.0' ... port: 3306
+```
+
+son del **servicio MySQL**, no del servicio web. Eso significa que MySQL ya arrancó, pero la app Express solo podrá conectarse si el servicio **web** recibe las variables correctas.
+
+Checklist exacto:
+
+1. Abre el servicio **web** en Railway, no el servicio MySQL.
+2. En **Variables**, agrega la opción recomendada:
+
+```bash
+MYSQL_URL=${{MySQL.MYSQL_URL}}
+```
+
+3. Si prefieres variables separadas, agrega todas en el servicio web:
+
+```bash
+MYSQLHOST=mysql.railway.internal
+MYSQLPORT=3306
+MYSQLDATABASE=railway
+MYSQLUSER=root
+MYSQLPASSWORD=${{MySQL.MYSQLPASSWORD}}
+```
+
+4. Elimina variables locales del servicio web si existen:
+
+```bash
+DB_HOST=localhost
+DB_NAME=petmarket
+DB_PASSWORD=password
+```
+
+5. Haz **Redeploy** del servicio web.
+6. Abre `/ready`. Para conexión correcta debe verse `databaseReady: true`. Si todavía falla, revisa `databaseConfig.configurationWarnings`, `databaseConfig.presentUrlKeys`, `databaseConfig.presentSeparateKeys`, `lastDatabaseFailure.code` y `lastDatabaseFailure.advice`.
+
+Interpretación rápida de `/ready`:
+
+- `host: "localhost"`: la web no recibió `MYSQL_URL` ni `MYSQLHOST`; está usando variables locales.
+- `presentUrlKeys: []`: no existe `MYSQL_URL` en la web.
+- `presentSeparateKeys` sin `MYSQLHOST`: falta el host interno.
+- `usesRailwayInternalHost: true`: la app sí tomó `mysql.railway.internal`.
+- `configurationWarnings: []`: no hay mezcla peligrosa de variables locales y Railway.

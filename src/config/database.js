@@ -210,6 +210,19 @@ const incompleteSeparateConfigMessage = missingSeparateKeys.length
 const configurationWarnings = buildConfigurationWarnings();
 const configurationWarningHelp = configurationWarnings.length ? configurationWarnings.join(' ') : null;
 
+
+const railwayExpectedWebVariables = isRailway ? {
+  recommended: 'MYSQL_URL=${{MySQL.MYSQL_URL}}',
+  separateAlternative: [
+    'MYSQLHOST=mysql.railway.internal',
+    'MYSQLPORT=3306',
+    'MYSQLDATABASE=railway',
+    'MYSQLUSER=root',
+    'MYSQLPASSWORD=${{MySQL.MYSQLPASSWORD}}',
+  ],
+  note: 'Los logs "mysqld: ready for connections" pertenecen al servicio MySQL; el servicio web solo conecta si recibe MYSQL_URL o las variables MYSQL* como Variable References.',
+} : null;
+
 const databaseConfig = {
   database,
   username,
@@ -229,6 +242,7 @@ const databaseConfig = {
   missingSeparateKeys,
   separateConfigMode,
   configurationWarnings,
+  railwayExpectedWebVariables,
   railwayInternalHelp,
   usesRailwayInternalHost,
   dnsResultOrder: typeof dns.getDefaultResultOrder === 'function' ? dns.getDefaultResultOrder() : dnsResultOrder,
@@ -248,6 +262,7 @@ const databaseConfig = {
     missingSeparateKeys,
     separateConfigMode,
     configurationWarnings,
+    railwayExpectedWebVariables,
     hasExplicitDatabaseConfig,
     isRailway,
     isRender,

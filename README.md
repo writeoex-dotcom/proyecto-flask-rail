@@ -76,6 +76,8 @@ Antes de sincronizar, revisa que Railway no esté usando variables locales como 
 npm run db:diagnose
 ```
 
+Si los logs del servicio MySQL dicen `ready for connections`, MySQL ya arrancó; todavía debes confirmar que el servicio **web** tenga `MYSQL_URL=${{MySQL.MYSQL_URL}}` o las variables `MYSQLHOST/MYSQLPORT/MYSQLDATABASE/MYSQLUSER/MYSQLPASSWORD`.
+
 La app crea las tablas automáticamente al iniciar con `sequelize.sync()`. Si quieres forzar la creación desde consola antes de abrir la web, ejecuta:
 
 ```bash
