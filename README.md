@@ -38,11 +38,14 @@ NODE_ENV=development
 PORT=3000
 MYSQL_URL=mysql://usuario:clave@host:puerto/base
 DATABASE_URL=mysql://usuario:clave@host:puerto/base
+MYSQL_PUBLIC_URL=mysql://usuario:clave@host-publico:puerto/base
 MYSQLHOST=containers-us-west-xxx.railway.app
 MYSQLPORT=3306
 MYSQLDATABASE=railway
+MYSQL_DATABASE=railway
 MYSQLUSER=root
 MYSQLPASSWORD=clave-railway
+MYSQL_ROOT_PASSWORD=clave-railway
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=petmarket
@@ -53,13 +56,13 @@ SESSION_SECRET=cambia-esto-por-una-clave-larga
 SECURE_COOKIES=false
 ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD_HASH=hash-generado-con-bcryptjs
-DB_CONNECT_RETRIES=15
+DB_CONNECT_RETRIES=0
 DB_CONNECT_RETRY_DELAY_MS=5000
 SESSION_TABLE_NAME=sessions
 VERIFICATION_CODE_TTL_MINUTES=10
 ```
 
-Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL`. Si tu plugin no la muestra, usa las variables separadas `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`.
+Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL` como **Variable Reference dentro del servicio web**, por ejemplo `MYSQL_URL=${{MySQL.MYSQL_URL}}`. Si tu plugin no la muestra, usa `MYSQL_PUBLIC_URL` o variables separadas `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`.
 
 ## Estructura del proyecto
 
@@ -117,7 +120,7 @@ SESSION_SECRET=una-clave-larga-aleatoria-y-privada
 SECURE_COOKIES=true
 MYSQL_URL=${{MySQL.MYSQL_URL}}
 # Si no tienes MYSQL_URL, usa MYSQLHOST/MYSQLPORT/MYSQLDATABASE/MYSQLUSER/MYSQLPASSWORD
-DB_CONNECT_RETRIES=15
+DB_CONNECT_RETRIES=0
 DB_CONNECT_RETRY_DELAY_MS=5000
 SESSION_TABLE_NAME=sessions
 ADMIN_EMAIL=admin@gmail.com
@@ -189,8 +192,8 @@ Antes de procesar compras reales o datos sensibles, agrega:
 
 Si ves `SequelizeConnectionRefusedError` o `ECONNREFUSED`, casi siempre significa que la app web está intentando conectar a `localhost` porque no recibió la URL/variables del MySQL de Railway. Solución:
 
-1. En el servicio web, agrega `MYSQL_URL=${{MySQL.MYSQL_URL}}`.
-2. Si no existe esa variable, agrega `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD` copiadas desde el servicio MySQL.
+1. En el servicio web, agrega `MYSQL_URL=${{MySQL.MYSQL_URL}}` usando **Add a Variable Reference**. No basta con que exista en el servicio MySQL.
+2. Si no existe esa variable, agrega `MYSQL_PUBLIC_URL` o `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD` copiadas desde el servicio MySQL.
 3. Revisa `/health`; debe devolver `ok` aunque MySQL esté iniciando.
 4. Revisa `/ready`; debe devolver estado 200 cuando la base quede lista.
 5. El servidor ya no se cae inmediatamente: arranca `/health` y reintenta conectar a MySQL según `DB_CONNECT_RETRIES`.
@@ -204,3 +207,8 @@ Railway usa `/health` para validar red. Este endpoint está declarado antes de s
 ## Incidentes de Railway / Build Machines
 
 Si Railway muestra `Build Machines (Metal) - Investigating` o indica que los builds del plan Hobby están en cola, eso es una incidencia/capacidad de Railway y no un error del código. Revisa `https://status.railway.com/`, espera a que el incidente pase a Monitoring/Resolved y luego ejecuta **Redeploy**. Este repo incluye `nixpacks.toml` para instalar solo dependencias de producción con `npm install --omit=dev`, pero ninguna configuración del repositorio puede eliminar una cola global de Railway.
+
+
+## Variables Railway que acepta la app
+
+La app acepta `MYSQL_URL`, `DATABASE_URL`, `MYSQL_PUBLIC_URL`, `DB_URL`, variables separadas `MYSQLHOST`/`MYSQLPORT`/`MYSQLDATABASE`/`MYSQLUSER`/`MYSQLPASSWORD` y también alias como `MYSQL_DATABASE` y `MYSQL_ROOT_PASSWORD`. Puedes verificar qué configuración detectó visitando `/ready`; la respuesta muestra `databaseConfig` sin contraseña.

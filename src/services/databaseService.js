@@ -22,9 +22,18 @@ function createSessionStore() {
   });
 }
 
+function describeAttempt(attempt) {
+  return databaseConfig.retryAttempts > 0 ? `${attempt}/${databaseConfig.retryAttempts}` : `${attempt}/∞`;
+}
+
 async function initializeDatabase(sessionStore, readiness) {
   let lastError;
-  for (let attempt = 1; attempt <= databaseConfig.retryAttempts; attempt += 1) {
+  let attempt = 1;
+  const retryForever = databaseConfig.retryAttempts === 0;
+
+  if (readiness) readiness.databaseConfig = databaseConfig.summary;
+
+  while (retryForever || attempt <= databaseConfig.retryAttempts) {
     try {
       await sequelize.authenticate();
       await sequelize.sync();
@@ -36,13 +45,15 @@ async function initializeDatabase(sessionStore, readiness) {
     } catch (error) {
       lastError = error;
       if (readiness) readiness.lastDatabaseError = error.message;
-      const retrying = attempt < databaseConfig.retryAttempts;
+      const retrying = retryForever || attempt < databaseConfig.retryAttempts;
       console.error(
-        `No se pudo conectar a MySQL (intento ${attempt}/${databaseConfig.retryAttempts}).${retrying ? ' Reintentando...' : ''}`,
+        `No se pudo conectar a MySQL (intento ${describeAttempt(attempt)}).${retrying ? ' Reintentando...' : ''}`,
         error.message,
+        databaseConfig.summary,
       );
       if (retrying) await wait(databaseConfig.retryDelayMs);
     }
+    attempt += 1;
   }
   throw lastError;
 }

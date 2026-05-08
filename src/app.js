@@ -13,7 +13,7 @@ const emptyFlash = { success: [], danger: [], warning: [], info: [] };
 
 function createApp({ sessionStore, readiness } = {}) {
   const app = express();
-  const appReadiness = readiness || { databaseReady: false, lastDatabaseError: null };
+  const appReadiness = readiness || { databaseReady: false, lastDatabaseError: null, databaseConfig: null };
   app.locals.readiness = appReadiness;
   app.locals.session = {};
   app.locals.currentUser = null;
@@ -33,6 +33,7 @@ function createApp({ sessionStore, readiness } = {}) {
     res.status(appReadiness.databaseReady ? 200 : 503).json({
       databaseReady: appReadiness.databaseReady,
       lastDatabaseError: appReadiness.lastDatabaseError,
+      databaseConfig: appReadiness.databaseConfig,
     });
   });
 
@@ -53,7 +54,9 @@ function createApp({ sessionStore, readiness } = {}) {
     return res.status(503).render('error', {
       title: 'Base de datos iniciando',
       message: 'El servidor web está activo, pero MySQL aún está conectando. Revisa /ready o las variables MYSQL_URL/MYSQLHOST en Railway.',
-      details: appReadiness.lastDatabaseError ? `Último error MySQL: ${appReadiness.lastDatabaseError}` : 'Esperando conexión inicial con MySQL.',
+      details: appReadiness.lastDatabaseError
+        ? `Último error MySQL: ${appReadiness.lastDatabaseError}`
+        : 'Esperando conexión inicial con MySQL. Si estás en Railway, asegúrate de agregar MYSQL_URL=${{MySQL.MYSQL_URL}} como Variable Reference en el servicio web, no solo en el servicio MySQL.',
       session: {},
       currentUser: null,
       flash: emptyFlash,

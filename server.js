@@ -5,7 +5,7 @@ const { createSessionStore, initializeDatabase } = require('./src/services/datab
 const port = appConfig.port;
 
 async function bootstrap() {
-  const readiness = { databaseReady: false, lastDatabaseError: null };
+  const readiness = { databaseReady: false, lastDatabaseError: null, databaseConfig: null };
   const sessionStore = createSessionStore();
   const app = createApp({ sessionStore, readiness });
 

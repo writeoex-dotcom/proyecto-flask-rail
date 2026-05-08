@@ -44,7 +44,7 @@ También puedes usar:
 DATABASE_URL=${{MySQL.MYSQL_URL}}
 ```
 
-Si Railway no muestra `MYSQL_URL`, copia estas variables desde el servicio MySQL hacia el servicio web:
+Si Railway no muestra `MYSQL_URL`, usa `MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}}` o copia estas variables desde el servicio MySQL hacia el servicio web:
 
 ```bash
 MYSQLHOST=...
@@ -52,6 +52,8 @@ MYSQLPORT=3306
 MYSQLDATABASE=...
 MYSQLUSER=...
 MYSQLPASSWORD=...
+MYSQL_DATABASE=...
+MYSQL_ROOT_PASSWORD=...
 ```
 
 ### 4. Variables de entorno recomendadas
@@ -63,7 +65,7 @@ SECURE_COOKIES=true
 MYSQL_URL=${{MySQL.MYSQL_URL}}
 ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD_HASH=hash-bcrypt-del-admin
-DB_CONNECT_RETRIES=15
+DB_CONNECT_RETRIES=0
 DB_CONNECT_RETRY_DELAY_MS=5000
 SESSION_TABLE_NAME=sessions
 VERIFICATION_CODE_TTL_MINUTES=10
@@ -98,7 +100,7 @@ Antes de cambiar código, revisa `https://status.railway.com/`. Si Railway marca
 
 
 - **Healthcheck failure**: confirma que `railway.json` apunte a `/health`. Ese endpoint está antes de sesiones/MySQL y debe responder `ok` con HTTP 200. Revisa también que `server.js` escuche en `0.0.0.0`.
-- **Error de base de datos / ECONNREFUSED**: valida que `MYSQL_URL` exista en el servicio web, no solo en el servicio MySQL. Si no hay URL, configura `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`.
+- **Error de base de datos / ECONNREFUSED**: valida que `MYSQL_URL` exista en el servicio web como Variable Reference, no solo en el servicio MySQL. Si no hay URL, configura `MYSQL_PUBLIC_URL` o `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`. Revisa `/ready` para ver `databaseConfig` sin secretos.
 - **Sesión no persiste**: confirma `SESSION_SECRET`, `SESSION_TABLE_NAME=sessions`, `SECURE_COOKIES=true` con `NODE_ENV=production` y que `/ready` esté en verde.
 - **No entra admin**: genera de nuevo `ADMIN_PASSWORD_HASH` con `bcryptjs` y pega el hash completo.
 
@@ -120,3 +122,13 @@ Antes de cambiar código, revisa `https://status.railway.com/`. Si Railway marca
 ## Build queue en Hobby/Trial
 
 Cuando el despliegue se queda en cola antes de mostrar logs de `npm install`, normalmente no es un fallo de la app. Railway todavía no asignó una máquina de build. Este repo ayuda a que el build sea más liviano con `nixpacks.toml`, pero si hay incidente global de Build Machines hay que esperar o reintentar después.
+
+## Variable Reference en Railway
+
+En el servicio **web** abre Variables y usa **Add a Variable Reference**. Ejemplo:
+
+```bash
+MYSQL_URL=${{MySQL.MYSQL_URL}}
+```
+
+Si solo ves las variables dentro del servicio MySQL, la app web no las recibe automáticamente. Deben estar también referenciadas en el servicio web.
