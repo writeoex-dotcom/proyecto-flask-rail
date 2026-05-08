@@ -37,6 +37,13 @@ const isRailway = Boolean(
   || process.env.RAILWAY_PROJECT_ID
   || process.env.RAILWAY_SERVICE_ID,
 );
+const isRender = Boolean(
+  process.env.RENDER
+  || process.env.RENDER_SERVICE_ID
+  || process.env.RENDER_EXTERNAL_HOSTNAME
+  || process.env.RENDER_INSTANCE_ID,
+);
+const hostedPlatform = isRailway ? 'Railway' : (isRender ? 'Render' : null);
 
 function sanitizeUrl(rawUrl) {
   if (!rawUrl) return null;
@@ -49,7 +56,9 @@ function sanitizeUrl(rawUrl) {
   }
 }
 
-const missingRailwayConfigMessage = 'No se detectaron variables MySQL en el servicio web. En Railway agrega una Variable Reference como MYSQL_URL=${{MySQL.MYSQL_URL}} o MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}} dentro del servicio web.';
+const missingHostedConfigMessage = hostedPlatform === 'Railway'
+  ? 'No se detectaron variables MySQL en el servicio web. En Railway agrega una Variable Reference como MYSQL_URL=${{MySQL.MYSQL_URL}} o MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}} dentro del servicio web.'
+  : 'No se detectaron variables MySQL en el servicio web. En Render agrega MYSQL_URL con la URL de tu MySQL externo en Environment Variables o al crear el Blueprint.';
 
 const databaseConfig = {
   database,
@@ -63,7 +72,9 @@ const databaseConfig = {
   connectionUrlSource,
   hasExplicitDatabaseConfig,
   isRailway,
-  missingRailwayConfigMessage,
+  isRender,
+  hostedPlatform,
+  missingHostedConfigMessage,
   retryAttempts: Number(process.env.DB_CONNECT_RETRIES || 0),
   retryDelayMs: Number(process.env.DB_CONNECT_RETRY_DELAY_MS || 5000),
   dialectOptions: sslEnabled ? { ssl: { require: true, rejectUnauthorized: false } } : {},
@@ -72,12 +83,14 @@ const databaseConfig = {
     urlSource: connectionUrlSource || null,
     hasExplicitDatabaseConfig,
     isRailway,
+    isRender,
+    hostedPlatform,
     sanitizedUrl: sanitizeUrl(connectionUrl),
     host,
     port,
     database,
     username,
-    help: isRailway && !hasExplicitDatabaseConfig ? missingRailwayConfigMessage : null,
+    help: hostedPlatform && !hasExplicitDatabaseConfig ? missingHostedConfigMessage : null,
   },
 };
 

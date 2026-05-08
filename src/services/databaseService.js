@@ -33,9 +33,9 @@ async function initializeDatabase(sessionStore, readiness) {
 
   if (readiness) readiness.databaseConfig = databaseConfig.summary;
 
-  if (databaseConfig.isRailway && !databaseConfig.hasExplicitDatabaseConfig) {
-    if (readiness) readiness.lastDatabaseError = databaseConfig.missingRailwayConfigMessage;
-    console.error(databaseConfig.missingRailwayConfigMessage, databaseConfig.summary);
+  if (databaseConfig.hostedPlatform && !databaseConfig.hasExplicitDatabaseConfig) {
+    if (readiness) readiness.lastDatabaseError = databaseConfig.missingHostedConfigMessage;
+    console.error(databaseConfig.missingHostedConfigMessage, databaseConfig.summary);
     return false;
   }
 

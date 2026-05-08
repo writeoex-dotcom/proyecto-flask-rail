@@ -56,7 +56,7 @@ function createApp({ sessionStore, readiness } = {}) {
       message: 'El servidor web está activo, pero MySQL aún está conectando. Revisa /ready o las variables MYSQL_URL/MYSQLHOST en Railway.',
       details: appReadiness.lastDatabaseError
         ? `Último error MySQL: ${appReadiness.lastDatabaseError}`
-        : 'Esperando conexión inicial con MySQL. Si estás en Railway, asegúrate de agregar MYSQL_URL=${{MySQL.MYSQL_URL}} como Variable Reference en el servicio web, no solo en el servicio MySQL.',
+        : 'Esperando conexión inicial con MySQL. En Render agrega MYSQL_URL en Environment Variables; en Railway agrega MYSQL_URL=${{MySQL.MYSQL_URL}} como Variable Reference en el servicio web.',
       session: {},
       currentUser: null,
       flash: emptyFlash,

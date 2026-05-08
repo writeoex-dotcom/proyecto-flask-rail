@@ -78,7 +78,8 @@ src/views/                # Vistas EJS y layout
 public/css, public/js     # Estilos, modo oscuro y JavaScript del navegador
 docs/                     # Documentación técnica y despliegue Railway
 railway.json              # Configuración de deploy Railway
-Procfile                  # Proceso web compatible con servidores tipo Heroku/Railway
+render.yaml               # Blueprint Render para el servicio web
+Procfile                  # Proceso web compatible con servidores tipo Heroku/Railway/Render
 ```
 
 ## Pasos para desplegar en Railway
@@ -162,7 +163,8 @@ npm test           # Revisa sintaxis JS del servidor, src y public
 
 ## Documentación adicional
 
-- Guía completa de despliegue: [`docs/DEPLOY_RAILWAY.md`](docs/DEPLOY_RAILWAY.md).
+- Guía completa de despliegue Railway: [`docs/DEPLOY_RAILWAY.md`](docs/DEPLOY_RAILWAY.md).
+- Guía completa de despliegue Render: [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md).
 - Troubleshooting operativo Railway: [`docs/RAILWAY_TROUBLESHOOTING.md`](docs/RAILWAY_TROUBLESHOOTING.md).
 - Arquitectura, controladores, servicios y flujos: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
@@ -217,3 +219,8 @@ La app acepta `MYSQL_URL`, `DATABASE_URL`, `MYSQL_PUBLIC_URL`, `DB_URL`, variabl
 ## Si `/ready` muestra `host: localhost` en Railway
 
 Eso significa que el servicio web no recibió ninguna variable MySQL. Debes ir al servicio **web** en Railway, abrir **Variables**, usar **Add a Variable Reference** y crear `MYSQL_URL=${{MySQL.MYSQL_URL}}`. Si quieres usar la URL pública, crea `MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}}`. Después redeploy. La app ya detecta este caso y deja de spamear reintentos infinitos contra localhost en Railway.
+
+
+## Despliegue en Render
+
+El repo incluye `render.yaml` para crear el servicio web `petmarket-seguro-web` en Render. La app usa MySQL, por lo que en Render debes conectar un MySQL externo con `MYSQL_URL` en Environment Variables. Render define `PORT` automáticamente; la app ya escucha `0.0.0.0:$PORT`, expone `/health` para health checks y `/ready` para validar MySQL. Guía completa: [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md).

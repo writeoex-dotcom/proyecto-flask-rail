@@ -1,11 +1,20 @@
-<section class="auth-card">
-  <h1><%= title %></h1>
-  <p><%= message %></p>
-  <% if (typeof details !== 'undefined' && details) { %>
-    <p class="tags"><%= details %></p>
-  <% } %>
-  <div class="actions">
-    <a class="cta" href="/">Volver al inicio</a>
-    <a href="/ready">Ver estado de base de datos</a>
+<section class="status-hero">
+  <div class="status-copy">
+    <p class="eyebrow">🐾 Pet shop iniciando</p>
+    <h1><%= title %></h1>
+    <p><%= message %></p>
+    <% if (typeof details !== 'undefined' && details) { %>
+      <p class="tags"><%= details %></p>
+    <% } %>
+    <div class="actions">
+      <a class="cta" href="/">Volver al inicio</a>
+      <a class="secondary-link" href="/ready">Ver estado de base de datos</a>
+    </div>
+  </div>
+  <div class="status-card">
+    <span>🐶</span>
+    <strong>Preparando la tienda</strong>
+    <p>Estamos cargando productos, marcas, preferencias y carrito para tu mascota.</p>
+    <div class="mini-checks"><small>Comida</small><small>Juguetes</small><small>Accesorios</small></div>
   </div>
 </section>

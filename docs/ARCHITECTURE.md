@@ -67,3 +67,9 @@ MySQL
 - Evitar credenciales en el repositorio; usar `.env` local y variables Railway.
 - Si se agregan tablas nuevas, documentarlas aquí y considerar migraciones.
 - Si se agregan formularios críticos, añadir CSRF y rate limiting.
+
+
+## Deploy targets
+
+- Railway: usa `railway.json`, `nixpacks.toml`, `/health`, `/ready` y variables `MYSQL_URL`/`MYSQL*`.
+- Render: usa `render.yaml` para el web service Node y requiere un MySQL externo configurado con `MYSQL_URL`.
