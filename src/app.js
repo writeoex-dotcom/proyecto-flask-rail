@@ -13,6 +13,10 @@ function createApp({ sessionStore, readiness } = {}) {
   const app = express();
   const appReadiness = readiness || { databaseReady: false };
   app.locals.readiness = appReadiness;
+  app.locals.session = {};
+  app.locals.currentUser = null;
+  app.locals.flash = { success: [], danger: [], warning: [], info: [] };
+  app.locals.databaseReady = false;
 
   app.disable('x-powered-by');
   // Railway trabaja detrás de proxy HTTPS; esto permite cookies secure correctas.
@@ -63,12 +67,24 @@ function createApp({ sessionStore, readiness } = {}) {
   app.use(webRoutes);
 
   app.use((req, res) => {
-    res.status(404).render('error', { title: 'Página no encontrada', message: 'No encontramos la página solicitada.' });
+    res.status(404).render('error', {
+      title: 'Página no encontrada',
+      message: 'No encontramos la página solicitada.',
+      session: req.session || {},
+      currentUser: res.locals.currentUser || null,
+      flash: res.locals.flash || { success: [], danger: [], warning: [], info: [] },
+    });
   });
 
   app.use((error, req, res, next) => {
     console.error(error);
-    res.status(500).render('error', { title: 'Error interno', message: 'Ocurrió un error seguro. Inténtalo nuevamente.' });
+    res.status(500).render('error', {
+      title: 'Error interno',
+      message: 'Ocurrió un error seguro. Inténtalo nuevamente.',
+      session: req.session || {},
+      currentUser: res.locals.currentUser || null,
+      flash: res.locals.flash || { success: [], danger: [], warning: [], info: [] },
+    });
   });
 
   return app;

@@ -1,3 +1,8 @@
+<%
+  const safeSession = typeof session !== 'undefined' && session ? session : {};
+  const safeCurrentUser = typeof currentUser !== 'undefined' ? currentUser : null;
+  const safeFlash = typeof flash !== 'undefined' && flash ? flash : { success: [], danger: [], warning: [], info: [] };
+%>
 <!doctype html>
 <html lang="es">
 <head>
@@ -24,12 +29,12 @@
       <a href="/">Inicio</a>
       <a href="/#marcas">Marcas</a>
       <a href="/#productos">Productos</a>
-      <% if (session.admin) { %><a href="/admin">Admin</a><% } %>
+      <% if (safeSession.admin) { %><a href="/admin">Admin</a><% } %>
     </nav>
     <div class="header-icons" aria-label="Accesos rápidos">
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="Cambiar modo claro u oscuro">🌙</button>
-      <% if (currentUser) { %>
-        <a title="Perfil" href="/logout">👤 <%= currentUser.email.split('@')[0] %></a>
+      <% if (safeCurrentUser) { %>
+        <a title="Perfil" href="/logout">👤 <%= safeCurrentUser.email.split('@')[0] %></a>
       <% } else { %>
         <a title="Perfil y acceso" href="/login">👤 Acceso</a>
       <% } %>
@@ -37,7 +42,7 @@
       <a title="Carrito" href="/cart">🛒 Carrito</a>
     </div>
   </header>
-  <%- include('../partials/flash') %>
+  <%- include('../partials/flash', { flash: safeFlash }) %>
   <main id="contenido" tabindex="-1"><%- body %></main>
   <footer>
     <strong>PetMarket Seguro</strong>
