@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PetMarket Seguro</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('main.home') }}">🐾 PetMarket Seguro</a>
+    <nav class="nav">
+      <a href="{{ url_for('main.home') }}">Inicio</a>
+      <a href="#marcas">Marcas</a>
+      <a href="#productos">Productos</a>
+      {% if session.get('admin') %}<a href="{{ url_for('main.admin') }}">Admin</a>{% endif %}
+    </nav>
+    <div class="header-icons" aria-label="Accesos rápidos">
+      {% if current_user %}
+        <a title="Perfil" href="{{ url_for('main.logout') }}">👤 {{ current_user.email.split('@')[0] }}</a>
+      {% else %}
+        <a title="Perfil y acceso" href="{{ url_for('main.login') }}">👤 Acceso</a>
+      {% endif %}
+      <a title="Tienda" href="#productos">🏪 Tienda</a>
+      <a title="Carrito" href="{{ url_for('main.cart') }}">🛒 Carrito</a>
+    </div>
+  </header>
+  {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="flash {{ category }}">{{ message }}</div>
+  {% endfor %}
+  <main>{% block content %}{% endblock %}</main>
+  <button class="paw-button" type="button" data-open-preferences>🐾</button>
+  {% block preferences_modal %}{% endblock %}
+  <footer>
+    <strong>PetMarket Seguro</strong> — Prototipo educativo con marcas oficiales enlazadas; no copia logotipos ni contenido propietario.
+  </footer>
+</body>
+</html>
