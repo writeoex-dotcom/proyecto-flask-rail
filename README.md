@@ -160,6 +160,7 @@ npm test           # Revisa sintaxis JS del servidor, src y public
 ## Documentación adicional
 
 - Guía completa de despliegue: [`docs/DEPLOY_RAILWAY.md`](docs/DEPLOY_RAILWAY.md).
+- Troubleshooting operativo Railway: [`docs/RAILWAY_TROUBLESHOOTING.md`](docs/RAILWAY_TROUBLESHOOTING.md).
 - Arquitectura, controladores, servicios y flujos: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Seguridad incluida en el prototipo
@@ -198,3 +199,8 @@ Si ves `SequelizeConnectionRefusedError` o `ECONNREFUSED`, casi siempre signific
 ## Healthcheck Railway
 
 Railway usa `/health` para validar red. Este endpoint está declarado antes de sesiones y antes de cualquier consulta MySQL, por eso devuelve `ok` aunque la base todavía esté iniciando. Para validar la base usa `/ready`; ese sí devuelve 503 hasta que MySQL conecte y Sequelize sincronice tablas.
+
+
+## Incidentes de Railway / Build Machines
+
+Si Railway muestra `Build Machines (Metal) - Investigating` o indica que los builds del plan Hobby están en cola, eso es una incidencia/capacidad de Railway y no un error del código. Revisa `https://status.railway.com/`, espera a que el incidente pase a Monitoring/Resolved y luego ejecuta **Redeploy**. Este repo incluye `nixpacks.toml` para instalar solo dependencias de producción con `npm install --omit=dev`, pero ninguna configuración del repositorio puede eliminar una cola global de Railway.

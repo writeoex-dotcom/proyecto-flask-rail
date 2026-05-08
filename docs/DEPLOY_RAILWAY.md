@@ -94,6 +94,9 @@ Copia el resultado en `ADMIN_PASSWORD_HASH`. La web no permite registrar adminis
 
 ## Solución de problemas
 
+Antes de cambiar código, revisa `https://status.railway.com/`. Si Railway marca `Build Machines (Metal)` como Investigating/Degraded, el build puede estar en cola por una incidencia de plataforma. En ese caso espera, vuelve a desplegar cuando se resuelva y consulta [`RAILWAY_TROUBLESHOOTING.md`](RAILWAY_TROUBLESHOOTING.md).
+
+
 - **Healthcheck failure**: confirma que `railway.json` apunte a `/health`. Ese endpoint está antes de sesiones/MySQL y debe responder `ok` con HTTP 200. Revisa también que `server.js` escuche en `0.0.0.0`.
 - **Error de base de datos / ECONNREFUSED**: valida que `MYSQL_URL` exista en el servicio web, no solo en el servicio MySQL. Si no hay URL, configura `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`.
 - **Sesión no persiste**: confirma `SESSION_SECRET`, `SESSION_TABLE_NAME=sessions`, `SECURE_COOKIES=true` con `NODE_ENV=production` y que `/ready` esté en verde.
@@ -113,3 +116,7 @@ Copia el resultado en `ADMIN_PASSWORD_HASH`. La web no permite registrar adminis
 
 - `/health`: lo usa Railway. Solo confirma que Express está escuchando y debe responder rápido aunque MySQL esté caído.
 - `/ready`: lo usas tú para saber si MySQL ya conectó, sincronizó tablas y sembró productos. Si devuelve 503, revisa variables de base de datos o espera los reintentos.
+
+## Build queue en Hobby/Trial
+
+Cuando el despliegue se queda en cola antes de mostrar logs de `npm install`, normalmente no es un fallo de la app. Railway todavía no asignó una máquina de build. Este repo ayuda a que el build sea más liviano con `nixpacks.toml`, pero si hay incidente global de Build Machines hay que esperar o reintentar después.
