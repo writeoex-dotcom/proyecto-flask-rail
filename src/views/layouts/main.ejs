@@ -1,0 +1,62 @@
+<%
+  const safeSession = typeof session !== 'undefined' && session ? session : {};
+  const safeCurrentUser = typeof currentUser !== 'undefined' ? currentUser : null;
+  const safeFlash = typeof flash !== 'undefined' && flash ? flash : { success: [], danger: [], warning: [], info: [] };
+%>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PetMarket Seguro: e-commerce de mascotas con recomendaciones personalizadas, carrito para clientes y analítica administrativa.">
+  <meta name="theme-color" content="#ff5a2f">
+  <title><%= title ? `${title} · ` : '' %>PetMarket Seguro</title>
+  <script>
+    // Evita parpadeo visual: aplica el tema guardado antes de cargar estilos.
+    const savedTheme = localStorage.getItem('petmarket-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = savedTheme || (prefersDark ? 'dark' : 'light');
+  </script>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+  <div class="promo-strip">🚚 Envíos rápidos · 🐶 Recomendaciones por mascota · 🩺 Líneas comerciales y medicadas</div>
+  <header class="topbar petshop-header">
+    <a class="brand petshop-brand" href="/" aria-label="Ir al inicio de PetMarket Seguro">
+      <span class="brand-mark">🐾</span>
+      <span><strong>PetMarket</strong><small>Seguro</small></span>
+    </a>
+    <form class="search-bar" action="/#productos" role="search">
+      <span>🔎</span>
+      <input type="search" name="q" placeholder="Buscar comida, juguetes, shampoo..." aria-label="Buscar productos para mascotas">
+    </form>
+    <nav class="nav petshop-nav" aria-label="Navegación principal">
+      <a href="/">🏠 Inicio</a>
+      <a href="/#productos">🛍️ Tienda</a>
+      <a href="/#marcas">⭐ Marcas</a>
+      <a href="/#productos">🐕 Perros</a>
+      <a href="/#productos">🐈 Gatos</a>
+      <% if (safeSession.admin) { %><a href="/admin">📊 Admin</a><% } %>
+    </nav>
+    <div class="header-icons petshop-actions" aria-label="Accesos rápidos">
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Cambiar modo claro u oscuro">🌙</button>
+      <% if (safeCurrentUser) { %>
+        <a class="icon-pill" title="Perfil" href="/logout"><span>👤</span><small><%= safeCurrentUser.email.split('@')[0] %></small></a>
+      <% } else { %>
+        <a class="icon-pill" title="Perfil y acceso" href="/login"><span>👤</span><small>Acceso</small></a>
+      <% } %>
+      <a class="icon-pill" title="Carrito" href="/cart"><span>🛒</span><small>Carrito</small></a>
+    </div>
+  </header>
+  <%- include('../partials/flash', { flash: safeFlash }) %>
+  <main id="contenido" tabindex="-1"><%- body %></main>
+  <footer>
+    <strong>PetMarket Seguro</strong>
+    <span>Prototipo Express/MVC profesional, preparado para Railway, Render y MySQL.</span>
+    <span>Marcas oficiales enlazadas; no copia logotipos ni contenido propietario.</span>
+  </footer>
+</body>
+</html>

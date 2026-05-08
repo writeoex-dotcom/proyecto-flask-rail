@@ -1,0 +1,32 @@
+# Render Blueprint for PetMarket Seguro.
+# MySQL is external: provide MYSQL_URL in the Render Dashboard when creating the Blueprint.
+services:
+  - type: web
+    name: petmarket-seguro-web
+    runtime: node
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SECURE_COOKIES
+        value: "true"
+      - key: DB_CONNECT_RETRIES
+        value: "0"
+      - key: DB_CONNECT_RETRY_DELAY_MS
+        value: "5000"
+      - key: SESSION_TABLE_NAME
+        value: sessions
+      - key: VERIFICATION_CODE_TTL_MINUTES
+        value: "10"
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: MYSQL_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
