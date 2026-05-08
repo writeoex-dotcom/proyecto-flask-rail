@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-card">
+  <h1>Crear cuenta de cliente</h1>
+  <p>Solo se crean cuentas con rol cliente y correo @gmail.com verificado.</p>
+  <form method="post">
+    <label>Correo Gmail <input type="email" name="email" required placeholder="tunombre@gmail.com"></label>
+    <label>Contraseña <input type="password" name="password" required minlength="8"></label>
+    <label>Captcha: ¿Cuánto es {{ a }} + {{ b }}? <input type="number" name="captcha_answer" required></label>
+    <button class="cta" type="submit">Enviar código</button>
+  </form>
+</section>
+{% endblock %}
