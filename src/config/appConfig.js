@@ -10,6 +10,7 @@ const appConfig = {
   sessionSecret: process.env.SESSION_SECRET || 'dev-secret-change-me',
   // En producción se recomienda usar cookies seguras; Express confía en el proxy en src/app.js.
   secureCookies: process.env.SECURE_COOKIES ? process.env.SECURE_COOKIES === 'true' : isProduction,
+  sessionTableName: process.env.SESSION_TABLE_NAME || 'sessions',
   adminEmail: (process.env.ADMIN_EMAIL || 'admin@gmail.com').toLowerCase(),
   adminPasswordHash: process.env.ADMIN_PASSWORD_HASH || '',
   verificationCodeTtlMinutes: Number(process.env.VERIFICATION_CODE_TTL_MINUTES || 10),

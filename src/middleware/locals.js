@@ -2,19 +2,24 @@ const { User } = require('../models');
 const { ensureSessionKey } = require('../services/sessionService');
 
 async function attachLocals(req, res, next) {
-  ensureSessionKey(req);
-  res.locals.flash = {
-    success: req.flash('success'),
-    danger: req.flash('danger'),
-    warning: req.flash('warning'),
-    info: req.flash('info'),
-  };
-  res.locals.session = req.session;
-  res.locals.currentUser = null;
-  if (req.session.userId) {
-    res.locals.currentUser = await User.findByPk(req.session.userId);
+  try {
+    ensureSessionKey(req);
+    res.locals.flash = {
+      success: req.flash('success'),
+      danger: req.flash('danger'),
+      warning: req.flash('warning'),
+      info: req.flash('info'),
+    };
+    res.locals.session = req.session;
+    res.locals.currentUser = null;
+    res.locals.databaseReady = Boolean(req.app.locals.readiness?.databaseReady);
+    if (res.locals.databaseReady && req.session.userId) {
+      res.locals.currentUser = await User.findByPk(req.session.userId);
+    }
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 }
 
 function requireClient(req, res, next) {

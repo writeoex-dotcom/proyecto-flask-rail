@@ -13,7 +13,7 @@ La experiencia incluye home con banner publicitario, navegación profesional, ac
 - **Administrador seguro**: no se registra desde la web; se configura con `ADMIN_EMAIL` y `ADMIN_PASSWORD_HASH`.
 - **Analítica**: guarda navegación, vistas, preferencias y carrito para panel administrativo.
 - **Modo oscuro**: selector de tema con persistencia en `localStorage`.
-- **Deploy-ready**: `railway.json`, `Procfile`, `/health`, `0.0.0.0:$PORT` y soporte `MYSQL_URL`/`DATABASE_URL`.
+- **Deploy-ready**: `railway.json`, `Procfile`, `/health`, `/ready`, `0.0.0.0:$PORT` y soporte `MYSQL_URL`/`DATABASE_URL`/variables `MYSQL*` de Railway.
 
 ## Requisitos
 
@@ -38,6 +38,11 @@ NODE_ENV=development
 PORT=3000
 MYSQL_URL=mysql://usuario:clave@host:puerto/base
 DATABASE_URL=mysql://usuario:clave@host:puerto/base
+MYSQLHOST=containers-us-west-xxx.railway.app
+MYSQLPORT=3306
+MYSQLDATABASE=railway
+MYSQLUSER=root
+MYSQLPASSWORD=clave-railway
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=petmarket
@@ -48,10 +53,13 @@ SESSION_SECRET=cambia-esto-por-una-clave-larga
 SECURE_COOKIES=false
 ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD_HASH=hash-generado-con-bcryptjs
+DB_CONNECT_RETRIES=15
+DB_CONNECT_RETRY_DELAY_MS=5000
+SESSION_TABLE_NAME=sessions
 VERIFICATION_CODE_TTL_MINUTES=10
 ```
 
-Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL` porque el servicio MySQL la expone automáticamente.
+Localmente puedes usar variables separadas (`DB_HOST`, `DB_USER`, etc.). En Railway se recomienda usar `MYSQL_URL`. Si tu plugin no la muestra, usa las variables separadas `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`.
 
 ## Estructura del proyecto
 
@@ -108,6 +116,10 @@ NODE_ENV=production
 SESSION_SECRET=una-clave-larga-aleatoria-y-privada
 SECURE_COOKIES=true
 MYSQL_URL=${{MySQL.MYSQL_URL}}
+# Si no tienes MYSQL_URL, usa MYSQLHOST/MYSQLPORT/MYSQLDATABASE/MYSQLUSER/MYSQLPASSWORD
+DB_CONNECT_RETRIES=15
+DB_CONNECT_RETRY_DELAY_MS=5000
+SESSION_TABLE_NAME=sessions
 ADMIN_EMAIL=admin@gmail.com
 ADMIN_PASSWORD_HASH=pega-aqui-el-hash-bcrypt
 VERIFICATION_CODE_TTL_MINUTES=10
@@ -129,16 +141,13 @@ Copia el resultado completo en `ADMIN_PASSWORD_HASH`. El administrador **no** se
 
 1. Railway ejecutará el build automáticamente.
 2. Abre la URL pública generada.
-3. Visita `/health`; debe responder:
+3. Visita `/health`; debe responder `ok` con HTTP 200. Este endpoint no depende de MySQL ni sesiones para que Railway pueda pasar el healthcheck aunque la base todavía esté iniciando.
 
-```json
-{"status":"ok"}
-```
-
-4. Registra un cliente con correo `@gmail.com`.
-5. Revisa los logs del deploy para ver el código de verificación del prototipo.
-6. Inicia sesión como administrador con `ADMIN_EMAIL` y la contraseña real usada para crear el hash.
-7. Entra a `/admin` y valida métricas, gráficos y tabla de productos vistos.
+4. Visita `/ready`; debe responder `databaseReady: true` cuando MySQL ya esté conectado.
+5. Registra un cliente con correo `@gmail.com`.
+6. Revisa los logs del deploy para ver el código de verificación del prototipo.
+7. Inicia sesión como administrador con `ADMIN_EMAIL` y la contraseña real usada para crear el hash.
+8. Entra a `/admin` y valida métricas, gráficos y tabla de productos vistos.
 
 ## Comandos útiles
 
@@ -174,3 +183,18 @@ Antes de procesar compras reales o datos sensibles, agrega:
 - Pasarela de pago certificada.
 - Políticas de privacidad, términos y cumplimiento de protección de datos.
 - Observabilidad con logs estructurados y alertas.
+
+## Solución rápida para Railway
+
+Si ves `SequelizeConnectionRefusedError` o `ECONNREFUSED`, casi siempre significa que la app web está intentando conectar a `localhost` porque no recibió la URL/variables del MySQL de Railway. Solución:
+
+1. En el servicio web, agrega `MYSQL_URL=${{MySQL.MYSQL_URL}}`.
+2. Si no existe esa variable, agrega `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD` copiadas desde el servicio MySQL.
+3. Revisa `/health`; debe devolver `ok` aunque MySQL esté iniciando.
+4. Revisa `/ready`; debe devolver estado 200 cuando la base quede lista.
+5. El servidor ya no se cae inmediatamente: arranca `/health` y reintenta conectar a MySQL según `DB_CONNECT_RETRIES`.
+
+
+## Healthcheck Railway
+
+Railway usa `/health` para validar red. Este endpoint está declarado antes de sesiones y antes de cualquier consulta MySQL, por eso devuelve `ok` aunque la base todavía esté iniciando. Para validar la base usa `/ready`; ese sí devuelve 503 hasta que MySQL conecte y Sequelize sincronice tablas.

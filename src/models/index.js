@@ -1,18 +1,31 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const { databaseConfig } = require('../config/database');
 
+const sequelizeOptions = {
+  dialect: databaseConfig.dialect,
+  logging: databaseConfig.logging,
+  dialectOptions: databaseConfig.dialectOptions,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+};
+
 // Sequelize acepta una URL completa; esto facilita Railway porque MySQL expone MYSQL_URL.
-// Si no existe URL, usamos variables separadas para desarrollo local.
+// Si no existe URL, usamos variables separadas para desarrollo local o Railway variables.
 const sequelize = databaseConfig.connectionUrl
-  ? new Sequelize(databaseConfig.connectionUrl, {
-    dialect: databaseConfig.dialect,
-    logging: databaseConfig.logging,
-  })
+  ? new Sequelize(databaseConfig.connectionUrl, sequelizeOptions)
   : new Sequelize(
     databaseConfig.database,
     databaseConfig.username,
     databaseConfig.password,
-    databaseConfig,
+    {
+      ...sequelizeOptions,
+      host: databaseConfig.host,
+      port: databaseConfig.port,
+    },
   );
 
 const User = require('./user')(sequelize, DataTypes);

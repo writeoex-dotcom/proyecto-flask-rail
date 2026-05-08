@@ -9,11 +9,23 @@ const { appConfig } = require('./config/appConfig');
 const webRoutes = require('./routes/webRoutes');
 const { attachLocals } = require('./middleware/locals');
 
-function createApp() {
+function createApp({ sessionStore, readiness } = {}) {
   const app = express();
+  const appReadiness = readiness || { databaseReady: false };
+  app.locals.readiness = appReadiness;
 
+  app.disable('x-powered-by');
   // Railway trabaja detrás de proxy HTTPS; esto permite cookies secure correctas.
   app.set('trust proxy', 1);
+
+  // Healthcheck ultraligero para Railway: debe ir antes de sesiones, flash, vistas y MySQL.
+  // Así el deploy no falla si la base de datos todavía está despertando o reintentando conexión.
+  app.get('/health', (req, res) => res.status(200).type('text/plain').send('ok'));
+  app.head('/health', (req, res) => res.sendStatus(200));
+  // Readiness real: confirma si MySQL terminó de conectar/sincronizar.
+  app.get('/ready', (req, res) => {
+    res.status(appReadiness.databaseReady ? 200 : 503).json({ databaseReady: appReadiness.databaseReady });
+  });
 
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
@@ -25,6 +37,7 @@ function createApp() {
   app.use(express.json());
   app.use(express.static(path.join(__dirname, '..', 'public')));
   app.use(session({
+    store: sessionStore,
     name: 'petmarket.sid',
     secret: appConfig.sessionSecret,
     resave: false,
@@ -38,8 +51,14 @@ function createApp() {
   }));
   app.use(flash());
   app.use(attachLocals);
-  // Healthcheck usado por Railway para saber si el contenedor arrancó correctamente.
-  app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
+
+  app.use((req, res, next) => {
+    if (appReadiness.databaseReady) return next();
+    return res.status(503).render('error', {
+      title: 'Base de datos iniciando',
+      message: 'El servidor web está activo, pero MySQL aún está conectando. Revisa /ready o las variables MYSQL_URL/MYSQLHOST en Railway.',
+    });
+  });
 
   app.use(webRoutes);
 
