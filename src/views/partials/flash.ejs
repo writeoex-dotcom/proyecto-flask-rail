@@ -1,0 +1,6 @@
+<% const safeFlash = typeof flash !== 'undefined' && flash ? flash : { success: [], danger: [], warning: [], info: [] }; %>
+<% Object.entries(safeFlash).forEach(([category, messages]) => { %>
+  <% (messages || []).forEach((message) => { %>
+    <div class="flash <%= category %>"><%= message %></div>
+  <% }) %>
+<% }) %>
