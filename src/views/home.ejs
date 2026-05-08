@@ -56,21 +56,42 @@
     { id: 'confort-identificacion', icon: '🛏️', eyebrow: 'Accesorios', title: 'Confort e identificación', description: 'Camas, placas, collares y hábitat.', items: products.filter((product) => ['cama', 'placa', 'collarín', 'hábitat'].includes(product.productType)) },
   ].filter((section) => section.items.length);
 
-  const quickTags = [
-    ['#comida-comercial', '🥣 Comercial'],
-    ['#comida-medicada', '🩺 Medicada'],
-    ['#perros', '🐕 Perros'],
-    ['#gatos', '🐈 Gatos'],
-    ['#pequenas-mascotas', '🐹 Pequeñas'],
-    ['#cachorros', '🐶 Cachorros'],
-    ['#adulto-mayor', '🧓 Senior'],
-    ['#renal-urinario', '💧 Renal/Urinario'],
-    ['#digestivo-cardiaco', '❤️ Digestivo/Cardíaco'],
-    ['#piel-sensible', '🌿 Piel sensible'],
-    ['#higiene', '🧴 Higiene'],
-    ['#accesorios', '🏷️ Accesorios'],
-    ['#juguetes', '🎾 Juguetes'],
-    ['#confort-identificacion', '🛏️ Confort'],
+  const pestelFactors = [
+    ['Político', 'Mayor interés público por tenencia responsable, campañas de vacunación y registro municipal de mascotas.'],
+    ['Económico', 'El cliente compara precio, promociones y delivery; se priorizan packs de ahorro y productos con valor comprobable.'],
+    ['Social', 'La mascota se considera miembro de la familia, por eso crece la demanda de nutrición, cuidado, juguetes y bienestar.'],
+    ['Tecnológico', 'E-commerce, WhatsApp, analítica de preferencias y recomendaciones permiten personalizar compra y recompra.'],
+    ['Ecológico', 'Consumidores valoran empaques reciclables, rutas de reparto eficientes y productos durables.'],
+    ['Legal', 'Se deben respetar etiquetado, protección al consumidor, datos personales y recomendación veterinaria para dietas medicadas.'],
+  ];
+
+  const segments = [
+    ['Geográfica', 'Lima Metropolitana y ciudades urbanas con acceso a delivery, pagos digitales y clínicas veterinarias cercanas.'],
+    ['Demográfica', 'Hogares de 18 a 55 años, estudiantes, parejas jóvenes, familias y adultos con perros o gatos.'],
+    ['Psicográfica', 'Personas que valoran bienestar animal, conveniencia, asesoría y marcas confiables.'],
+    ['Conductual', 'Compra recurrente mensual de alimento, búsqueda de ofertas, recompra por etapa de vida y productos para salud.'],
+  ];
+
+  const bcgItems = [
+    ['Estrella', 'Comida medicada y recomendaciones personalizadas: alta demanda y diferenciación.'],
+    ['Vaca', 'Alimento comercial para perro/gato: rotación constante y recompra mensual.'],
+    ['Interrogante', 'Shampoos hipoalergénicos y juguetes premium: requieren educación y campañas.'],
+    ['Perro', 'Accesorios genéricos sin personalización: baja diferenciación si no se agrupan por necesidad.'],
+  ];
+
+  const costItems = [
+    ['Compra inicial de inventario', 'S/ 4,800', 'Alimentos, higiene, accesorios y juguetes de mayor rotación.'],
+    ['Publicidad digital', 'S/ 1,200', 'Meta Ads, TikTok, Google y remarketing.'],
+    ['Diseño y piezas promocionales', 'S/ 650', 'Banners, piezas para redes, flyers y fotografía básica.'],
+    ['Operación y mano de obra', 'S/ 2,000', 'Atención, picking, empaque y soporte por WhatsApp.'],
+    ['Logística local', 'S/ 900', 'Rutas de delivery y materiales de despacho.'],
+    ['Tecnología y hosting', 'S/ 280', 'Dominio, hosting, base de datos y herramientas.'],
+  ];
+
+  const surveyCharts = [
+    { title: 'Mascota principal en el hogar', type: 'doughnut', label: 'Encuestas', labels: ['Perro', 'Gato', 'Ambos', 'Otra'], values: [46, 28, 21, 5] },
+    { title: 'Criterio de compra más importante', type: 'bar', label: 'Respuestas', labels: ['Precio', 'Marca', 'Delivery', 'Recomendación', 'Salud'], values: [29, 21, 18, 14, 18] },
+    { title: 'Frecuencia de compra mensual', type: 'line', label: 'Respuestas', labels: ['1 vez', '2 veces', '3 veces', '4+ veces'], values: [24, 38, 25, 13] },
   ];
 %>
 
@@ -91,13 +112,108 @@
   </div>
 </section>
 
-<nav class="section-nav section superpet-tags" aria-label="Etiquetas rápidas de navegación">
-  <a href="#preferencias">🐾 Preferencias</a>
-  <a href="#marcas">⭐ Marcas</a>
-  <% quickTags.forEach(([href, label]) => { %>
-    <a href="<%= href %>"><%= label %></a>
-  <% }) %>
-</nav>
+<section id="nosotros" class="section section-block about-section">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Acerca de nosotros</p>
+      <h2>Investigación de mercado y plan de marketing</h2>
+      <p>Resumen académico y operativo para lanzar PetMarket Seguro como e-commerce de productos reales para mascotas, con recomendaciones por perfil y compra ordenada.</p>
+    </div>
+  </div>
+
+  <div class="about-grid">
+    <article class="about-card highlight-card">
+      <p class="eyebrow">Capítulo 1: Introducción</p>
+      <h3>PetMarket Seguro</h3>
+      <p><strong>Misión:</strong> facilitar compras confiables de alimento, higiene, accesorios y juguetes para mascotas mediante catálogo verificado y recomendaciones por perfil.</p>
+      <p><strong>Visión:</strong> ser una tienda digital referente en bienestar animal, trazabilidad de productos y experiencia simple para familias con mascotas.</p>
+      <p><strong>Valores:</strong> confianza, cuidado animal, transparencia, innovación, responsabilidad y cercanía.</p>
+      <p><strong>Objetivo general:</strong> lanzar una plataforma de venta online que conecte necesidades reales de perros, gatos y pequeñas mascotas con productos coherentes.</p>
+      <ul>
+        <li>Clasificar productos por especie, etapa, condición y tipo de uso.</li>
+        <li>Educar al cliente sobre líneas comerciales, veterinarias y de cuidado.</li>
+        <li>Validar canales digitales, promociones y recompra mensual.</li>
+      </ul>
+      <p><strong>Servicio a lanzar:</strong> e-commerce con filtros, catálogo trazable, carrito, preferencias por mascota y contenido de apoyo para decisiones de compra.</p>
+    </article>
+
+    <article class="about-card">
+      <p class="eyebrow">Capítulo 2: Macroentorno</p>
+      <h3>Análisis PESTEL</h3>
+      <div class="mini-matrix">
+        <% pestelFactors.forEach(([factor, detail]) => { %>
+          <div><strong><%= factor %></strong><span><%= detail %></span></div>
+        <% }) %>
+      </div>
+      <p class="source-note">Impacto: el entorno favorece una tienda digital con precios claros, delivery, fuentes reales y advertencias para alimentos veterinarios.</p>
+    </article>
+  </div>
+
+  <div class="about-grid three">
+    <article class="about-card">
+      <p class="eyebrow">Capítulo 3</p>
+      <h3>Segmentación y consumidor</h3>
+      <% segments.forEach(([name, detail]) => { %>
+        <p><strong><%= name %>:</strong> <%= detail %></p>
+      <% }) %>
+      <p><strong>Perfil clave:</strong> comprador digital que busca ahorro, confianza, entrega rápida y productos adecuados para edad, especie o condición.</p>
+    </article>
+
+    <article class="about-card">
+      <p class="eyebrow">Capítulo 4: Producto</p>
+      <h3>Marketing mix</h3>
+      <p><strong>Características:</strong> catálogo verificado, recomendaciones, etiquetas, carrito y fuentes por producto.</p>
+      <p><strong>Diferenciadores:</strong> separación clara entre comercial, medicada, higiene, accesorios y juguetes.</p>
+      <p><strong>Diseño y marca:</strong> identidad cálida, ícono de huella, colores naranja/verde y mensajes de bienestar.</p>
+      <div class="bcg-list">
+        <% bcgItems.forEach(([label, detail]) => { %><span><strong><%= label %>:</strong> <%= detail %></span><% }) %>
+      </div>
+    </article>
+
+    <article class="about-card">
+      <p class="eyebrow">Plaza, promoción y precio</p>
+      <h3>Estrategia comercial</h3>
+      <p><strong>Plaza:</strong> web, redes sociales, WhatsApp, marketplaces y alianzas con veterinarias o pet shops locales.</p>
+      <p><strong>Logística:</strong> cobertura inicial urbana, despacho por zonas, combos mensuales y seguimiento de recompra.</p>
+      <p><strong>Promoción:</strong> ATL local, BTL con activaciones en veterinarias y digital con contenido educativo, influencers pet friendly y remarketing.</p>
+      <p><strong>Precio:</strong> estrategia mixta de competencia y valor percibido; promociones de penetración para primera compra y bundles por necesidad.</p>
+    </article>
+  </div>
+
+  <article class="about-card cost-card">
+    <p class="eyebrow">Tabla de costos referencial</p>
+    <h3>Presupuesto inicial de lanzamiento</h3>
+    <div class="cost-table" role="table" aria-label="Costos referenciales de lanzamiento">
+      <% costItems.forEach(([item, amount, note]) => { %>
+        <div role="row"><span role="cell"><%= item %></span><strong role="cell"><%= amount %></strong><small role="cell"><%= note %></small></div>
+      <% }) %>
+    </div>
+    <p class="source-note">Justificación: precios referenciales en soles para prototipo; la tienda debe actualizar costos reales de proveedor, margen, IGV, delivery y promociones antes de operar.</p>
+  </article>
+
+  <article class="about-card survey-card">
+    <p class="eyebrow">Capítulo 5: Investigación de mercado</p>
+    <h3>Encuestas online y hallazgos clave</h3>
+    <p>Modelo de encuesta para 100 respuestas online: resultados demostrativos para validar el prototipo antes de una campaña real.</p>
+    <ol class="survey-questions">
+      <li>¿Qué mascota tienes en casa?</li><li>¿Con qué frecuencia compras alimento?</li><li>¿Cuál es tu presupuesto mensual?</li><li>¿Qué canal prefieres para comprar?</li><li>¿Qué factor pesa más: precio, marca, salud o delivery?</li><li>¿Comprarías comida medicada con recomendación veterinaria?</li><li>¿Te interesan combos mensuales?</li><li>¿Qué promociones te motivan?</li><li>¿Usas WhatsApp para coordinar compras?</li><li>¿Qué tan importante es ver fuentes reales del producto?</li>
+    </ol>
+    <div class="chart-grid market-charts">
+      <% surveyCharts.forEach((chart) => { %>
+        <div class="market-chart">
+          <h4><%= chart.title %></h4>
+          <canvas data-chart-type="<%= chart.type %>" data-chart-label="<%= chart.label %>" data-labels='<%- JSON.stringify(chart.labels) %>' data-values='<%- JSON.stringify(chart.values) %>'></canvas>
+        </div>
+      <% }) %>
+    </div>
+    <div class="findings-grid">
+      <span><strong>Hallazgo 1:</strong> la recompra de alimento concentra la oportunidad de fidelización.</span>
+      <span><strong>Hallazgo 2:</strong> el precio importa, pero la confianza y la salud justifican bundles y asesoría.</span>
+      <span><strong>Hallazgo 3:</strong> el canal digital debe combinar web, WhatsApp y contenido educativo.</span>
+    </div>
+    <p class="source-note">Fuentes de contexto: <a href="https://www.ipsos.com/es-pe/entre-patas" target="_blank" rel="noopener noreferrer">Ipsos Perú</a> sobre tenencia y gasto en mascotas; <a href="https://www.gob.pe/institucion/inei/noticias/1193475-inei-incluira-la-tenencia-de-mascotas-en-hogares-en-sus-mediciones-a-partir-de-julio" target="_blank" rel="noopener noreferrer">INEI</a> sobre medición de tenencia/gasto; y <a href="https://www.peru-retail.com/comercio-electronico-en-peru-registra-un-crecimiento-del-21-2-en-2024-segun-capece/" target="_blank" rel="noopener noreferrer">CAPECE</a> sobre crecimiento del e-commerce peruano.</p>
+  </article>
+</section>
 
 <section id="preferencias" class="preference-summary section-block">
   <div class="section-heading">

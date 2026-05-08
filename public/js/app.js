@@ -17,36 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  const navToggle = document.querySelector('[data-nav-toggle]');
-  const mainNav = document.querySelector('[data-main-nav]');
-  const navBackdrop = document.querySelector('[data-nav-backdrop]');
-
-  function setNavigationOpen(isOpen) {
-    if (!navToggle || !mainNav) return;
-    mainNav.hidden = !isOpen;
-    if (navBackdrop) navBackdrop.hidden = !isOpen;
-    navToggle.setAttribute('aria-expanded', String(isOpen));
-    navToggle.setAttribute('aria-label', isOpen ? 'Cerrar barra de navegación' : 'Abrir barra de navegación');
-    body.classList.toggle('nav-open', isOpen);
-    if (isOpen) setTimeout(() => mainNav.querySelector('a')?.focus(), 0);
-  }
-
-  navToggle?.addEventListener('click', () => {
-    setNavigationOpen(mainNav?.hidden ?? true);
-  });
-
-  mainNav?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => setNavigationOpen(false));
-  });
-  navBackdrop?.addEventListener('click', () => setNavigationOpen(false));
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && mainNav && !mainNav.hidden) {
-      setNavigationOpen(false);
-      navToggle?.focus();
-    }
-  });
-
   const modal = document.querySelector('[data-preferences-modal]');
   const openPreferenceButtons = document.querySelectorAll('[data-open-preferences]');
   const closePreferenceButtons = document.querySelectorAll('[data-close-preferences]');
@@ -203,22 +173,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.Chart) return;
     const labels = JSON.parse(canvas.dataset.labels || '[]');
     const values = JSON.parse(canvas.dataset.values || '[]');
+    const chartType = canvas.dataset.chartType || (index === 0 ? 'bar' : 'doughnut');
     new Chart(canvas, {
-      type: index === 0 ? 'bar' : 'doughnut',
+      type: chartType,
       data: {
         labels,
         datasets: [{
-          label: 'Analítica',
+          label: canvas.dataset.chartLabel || 'Analítica',
           data: values,
-          backgroundColor: ['#ff7a59', '#2fbf71', '#3b82f6', '#f59e0b', '#8b5cf6'],
-          borderColor: 'rgba(255,255,255,.9)',
+          backgroundColor: chartType === 'line' ? 'rgba(255, 122, 89, .16)' : ['#ff7a59', '#2fbf71', '#3b82f6', '#f59e0b', '#8b5cf6', '#14b8a6'],
+          borderColor: chartType === 'line' ? '#ff7a59' : 'rgba(255,255,255,.9)',
           borderWidth: 2,
+          tension: .35,
+          fill: chartType === 'line',
         }],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom' } },
+        scales: chartType === 'doughnut' ? {} : { y: { beginAtZero: true } },
       },
     });
   });
