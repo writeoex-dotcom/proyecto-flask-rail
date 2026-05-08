@@ -1,0 +1,270 @@
+<%
+  const savedPreferences = typeof preferences !== 'undefined' ? preferences : (preference ? [preference] : []);
+  const productSections = [
+    {
+      id: 'comida-comercial',
+      icon: '🥣',
+      eyebrow: 'Alimentación diaria',
+      title: 'Comida comercial',
+      description: 'Productos para nutrición de rutina por especie y etapa de vida.',
+      items: products.filter((product) => product.category === 'comida' && product.lineType === 'comercial'),
+    },
+    {
+      id: 'comida-medicada',
+      icon: '🩺',
+      eyebrow: 'Líneas veterinarias',
+      title: 'Comida medicada',
+      description: 'Opciones para condiciones específicas; siempre validar con veterinario.',
+      items: products.filter((product) => product.category === 'comida' && product.lineType === 'medicada'),
+    },
+    {
+      id: 'higiene',
+      icon: '🧴',
+      eyebrow: 'Cuidado y limpieza',
+      title: 'Shampoo y lociones',
+      description: 'Separado para pelo, piel sensible y cuidado dermatológico.',
+      items: products.filter((product) => ['shampoo', 'lociones'].includes(product.category)),
+    },
+    {
+      id: 'accesorios',
+      icon: '🏷️',
+      eyebrow: 'Uso diario',
+      title: 'Accesorios',
+      description: 'Placas, camas, collarines y elementos de confort.',
+      items: products.filter((product) => product.category === 'accesorios'),
+    },
+    {
+      id: 'juguetes',
+      icon: '🎾',
+      eyebrow: 'Juego seguro',
+      title: 'Juguetes',
+      description: 'Organizados por tamaño y dureza para evitar opciones dispersas.',
+      items: products.filter((product) => product.category === 'juguetes'),
+    },
+  ].filter((section) => section.items.length);
+%>
+
+<section class="hero section-block hero-section">
+  <div>
+    <p class="eyebrow">Banner de publicidad</p>
+    <h1>Todo para tu mascota, recomendado según su perfil</h1>
+    <p>Compra comida comercial o medicada, shampoo, lociones, accesorios y juguetes con una experiencia ordenada por secciones.</p>
+    <div class="hero-actions">
+      <a class="cta" href="#tienda">Ver tienda ordenada</a>
+      <button class="secondary-button" type="button" data-open-preferences>Configurar preferencias</button>
+    </div>
+  </div>
+  <div class="ad-card">
+    <span>-25%</span>
+    <strong>Campaña de bienestar</strong>
+    <p>Completa hasta 2 referencias y priorizaremos productos coherentes para cada mascota.</p>
+  </div>
+</section>
+
+<nav class="section-nav section" aria-label="Secciones de la tienda">
+  <a href="#preferencias">🐾 Preferencias</a>
+  <a href="#marcas">⭐ Marcas</a>
+  <a href="#comida-comercial">🥣 Comercial</a>
+  <a href="#comida-medicada">🩺 Medicada</a>
+  <a href="#higiene">🧴 Higiene</a>
+  <a href="#accesorios">🏷️ Accesorios</a>
+  <a href="#juguetes">🎾 Juguetes</a>
+</nav>
+
+<section id="preferencias" class="preference-summary section-block">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Panel de preferencias</p>
+      <h2>Hasta 2 mascotas con respuestas coherentes</h2>
+      <p>El tamaño controla las especies disponibles para que la selección sea clara y cohesionada.</p>
+    </div>
+    <button class="cta" type="button" data-open-preferences>Configurar huella</button>
+  </div>
+  <% if (savedPreferences.length) { %>
+    <div class="preference-cards">
+      <% savedPreferences.forEach((item) => { %>
+        <article class="preference-card">
+          <strong><%= item.profileName || `Mascota ${item.preferenceSlot || 1}` %></strong>
+          <div class="chips">
+            <span><%= item.size || 'tamaño pendiente' %></span>
+            <span><%= item.species || 'mascota pendiente' %></span>
+            <span><%= item.lifeStage || 'edad pendiente' %></span>
+            <span><%= item.foodLine || 'línea pendiente' %></span>
+            <span><%= item.medicalCondition || 'sin condición' %></span>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <p class="empty-state">Aún no hay preferencias. Toca la huella inferior para responder preguntas opcionales o cierra con X si no deseas configurar ahora.</p>
+  <% } %>
+</section>
+
+<section id="marcas" class="section section-block">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Referencias externas</p>
+      <h2>Marcas oficiales y reales</h2>
+      <p>Cada marca está separada de la tienda para mantener el sitio limpio y fácil de revisar.</p>
+    </div>
+  </div>
+  <div class="brand-grid">
+    <% brands.forEach((brand) => { %>
+      <a class="brand-card" href="<%= brand.url %>" target="_blank" rel="noopener noreferrer">
+        <div class="brand-logo"><%= brand.name[0] %></div>
+        <h3><%= brand.name %></h3>
+        <p><%= brand.kind %></p>
+        <small><%= brand.description %></small>
+        <div class="overlay">Acerca más de <%= brand.name %> →</div>
+      </a>
+    <% }) %>
+  </div>
+</section>
+
+<section id="tienda" class="section section-block store-index">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Tienda organizada</p>
+      <h2>Productos separados por sección</h2>
+      <p>Los productos recomendados se muestran en su categoría correspondiente para evitar una vista dispersa.</p>
+    </div>
+  </div>
+</section>
+
+<p class="empty-state section" data-search-empty hidden>No encontramos productos con esa búsqueda. Prueba con comida, medicada, shampoo, accesorios o juguetes.</p>
+
+<% productSections.forEach((section) => { %>
+  <section id="<%= section.id %>" class="section product-section section-block" data-product-section>
+    <div class="section-heading product-section-heading">
+      <div class="section-title-with-icon">
+        <span><%= section.icon %></span>
+        <div>
+          <p class="eyebrow"><%= section.eyebrow %></p>
+          <h2><%= section.title %></h2>
+          <p><%= section.description %></p>
+        </div>
+      </div>
+      <small><%= section.items.length %> producto<%= section.items.length === 1 ? '' : 's' %></small>
+    </div>
+    <div class="product-grid">
+      <% section.items.forEach((product) => { %>
+        <article class="product-card" data-product-card data-search="<%= `${product.name} ${product.brand} ${product.species} ${product.lifeStage} ${product.lineType} ${product.category} ${product.tags}` %>">
+          <div class="product-image"><%= product.category %></div>
+          <h3><%= product.name %></h3>
+          <p><%= product.brand %> · <%= product.species %> · <%= product.lifeStage %></p>
+          <p class="tags"><%= product.lineType %> · <%= product.tags %></p>
+          <strong>S/ <%= Number(product.price).toFixed(2) %></strong>
+          <div class="actions">
+            <a href="/product/<%= product.id %>">Ver</a>
+            <form method="post" action="/cart/add/<%= product.id %>"><button type="submit">Agregar</button></form>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+<% }) %>
+
+<button class="paw-button" type="button" data-open-preferences aria-label="Abrir panel de preferencias">🐾</button>
+<div class="modal" data-preferences-modal hidden>
+  <form class="modal-card preference-form" method="post" action="/preferences" data-preference-form>
+    <button class="close" type="button" data-close-preferences aria-label="Cerrar preferencias">×</button>
+    <div class="modal-title">
+      <p class="eyebrow">Preferencias coherentes</p>
+      <h2>Configura hasta 2 mascotas</h2>
+      <p>Primero elige el tamaño. El formulario solo mostrará especies compatibles: pequeña = ave/hamster/pez, mediano = perro/gato, grande = perro. Puedes cerrar con X sin guardar.</p>
+    </div>
+
+    <fieldset>
+      <legend>1. Identificación de la referencia</legend>
+      <div class="form-grid two-columns">
+        <label>Preferencia
+          <select name="preferenceSlot">
+            <option value="1">Mascota 1</option>
+            <option value="2">Mascota 2</option>
+          </select>
+        </label>
+        <label>Nombre de referencia
+          <input name="profileName" placeholder="Ej. Luna, Rocky o Mascota 1" maxlength="80">
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Perfil base coherente</legend>
+      <div class="form-grid two-columns">
+        <label>Tamaño de mascota
+          <select name="size" data-size-select>
+            <option value="">Sin responder</option>
+            <option value="pequeña">Pequeña: ave, hamster o pez</option>
+            <option value="mediano">Mediano: gato o perro</option>
+            <option value="grande">Grande: perro</option>
+          </select>
+        </label>
+        <label>Tipo de mascota
+          <select name="species" data-species-select>
+            <option value="">Primero elige tamaño</option>
+            <option value="perro" data-sizes="mediano,grande">Perro</option>
+            <option value="gato" data-sizes="mediano">Gato</option>
+            <option value="ave" data-sizes="pequeña">Ave</option>
+            <option value="hamster" data-sizes="pequeña">Hamster</option>
+            <option value="pez" data-sizes="pequeña">Pez</option>
+          </select>
+          <small class="field-hint" data-species-hint>La lista se ajusta al tamaño seleccionado.</small>
+        </label>
+        <label>Edad
+          <select name="ageRange"><option value="">Sin responder</option><option value="menos_1">Menos de 1 año: cachorro</option><option value="1_6">1 a 6 años: adulto</option><option value="mas_6">Más de 6 años: adulto mayor</option></select>
+        </label>
+
+      </div>
+    </fieldset>
+
+    <div class="preference-accordion" data-preference-accordion>
+      <details open>
+        <summary><span>+</span> 3. Alimentación y salud</summary>
+        <div class="form-grid two-columns">
+          <label>Línea de comida
+            <select name="foodLine"><option value="">Sin responder</option><option value="comercial">Comercial</option><option value="medicada">Medicada / veterinaria</option></select>
+          </label>
+          <label>Condición medicada
+            <select name="medicalCondition"><option value="">Ninguna / no sé</option><option value="renal">Renal</option><option value="hepática">Hepática</option><option value="cardíaca">Cardíaca</option><option value="urinaria">Urinaria</option><option value="sobrepeso">Sobrepeso</option><option value="gastrointestinal">Gastrointestinal</option><option value="osteoarticular">Osteoarticular</option><option value="cáncer">Cáncer</option><option value="dermatológico">Dermatológico</option></select>
+          </label>
+        </div>
+      </details>
+
+      <details>
+        <summary><span>+</span> 4. Higiene y cuidado</summary>
+        <div class="form-grid two-columns">
+          <label>Shampoo o línea de cuidado
+            <select name="shampooBrand"><option value="">Sin responder</option><option value="piel sensible">Piel sensible</option><option value="pelo largo">Pelo largo</option><option value="pelo corto">Pelo corto</option><option value="hipoalergénico">Hipoalergénico</option><option value="control olor">Control de olor</option></select>
+          </label>
+          <label>Condición del pelo
+            <select name="coatCondition"><option value="">Sin responder</option><option value="pelo corto">Pelo corto</option><option value="pelo largo">Pelo largo</option><option value="piel sensible">Piel sensible</option><option value="dermatológico">Dermatológico</option><option value="muda frecuente">Muda frecuente</option></select>
+          </label>
+          <label>Sensibilidad de piel para lociones
+            <select name="lotionSkinSensitivity"><option value="">Sin responder</option><option value="normal">Normal</option><option value="sensible">Sensible</option><option value="alérgica">Alérgica</option><option value="reseca">Reseca</option><option value="dermatológica">Dermatológica</option></select>
+          </label>
+        </div>
+      </details>
+
+      <details>
+        <summary><span>+</span> 5. Accesorios y juego</summary>
+        <div class="form-grid two-columns">
+          <label>Accesorio preferido
+            <select name="accessoryType"><option value="">Sin responder</option><option value="placa">Placa</option><option value="collar">Collar</option><option value="collarín">Collarín</option><option value="cama">Cama</option><option value="transportador">Transportador</option><option value="comedero">Comedero</option></select>
+          </label>
+          <label>Tamaño del juguete
+            <select name="toySize"><option value="">Sin responder</option><option value="pequeño">Pequeño</option><option value="mediano">Mediano</option><option value="grande">Grande</option></select>
+          </label>
+          <label>Dureza del juguete
+            <select name="toyHardness"><option value="">Sin responder</option><option value="suave">Suave</option><option value="media">Media</option><option value="dura">Dura</option></select>
+          </label>
+        </div>
+      </details>
+    </div>
+
+    <div class="modal-actions">
+      <button class="secondary-button" type="button" data-close-preferences>No configurar ahora</button>
+      <button class="cta" type="submit">Guardar preferencia</button>
+    </div>
+  </form>
+</div>
