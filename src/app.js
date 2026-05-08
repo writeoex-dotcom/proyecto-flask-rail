@@ -12,6 +12,18 @@ const { attachLocals } = require('./middleware/locals');
 
 const emptyFlash = { success: [], danger: [], warning: [], info: [] };
 
+const speciesBySize = { pequeña: ['ave', 'hamster', 'pez'], mediano: ['perro', 'gato'], grande: ['perro'] };
+const lifeStageByAge = { menos_1: 'cachorro', '1_6': 'adulto', mas_6: 'adulto mayor' };
+
+function normalizePreferenceSlot(rawSlot) {
+  return Number(rawSlot) === 2 ? 2 : 1;
+}
+
+function getCoherentSpecies(size, species) {
+  const allowedSpecies = speciesBySize[size] || ['perro', 'gato', 'ave', 'hamster', 'pez'];
+  return allowedSpecies.includes(species) ? species : '';
+}
+
 function getFallbackProducts() {
   return catalogProducts.map((product, index) => ({
     id: index + 1,
@@ -57,11 +69,9 @@ function renderDatabaseOfflinePage(req, res, next) {
   }
 
   if (req.method === 'POST' && req.path === '/preferences') {
-    const preferenceSlot = Number(req.body.preferenceSlot) === 2 ? 2 : 1;
+    const preferenceSlot = normalizePreferenceSlot(req.body.preferenceSlot);
     const size = req.body.size || '';
-    const speciesBySize = { pequeña: ['ave', 'hamster', 'pez'], mediano: ['perro', 'gato'], grande: ['perro'] };
-    const allowedSpecies = speciesBySize[size] || ['perro', 'gato', 'ave', 'hamster', 'pez'];
-    const species = allowedSpecies.includes(req.body.species) ? req.body.species : '';
+    const species = getCoherentSpecies(size, req.body.species);
     const fallbackPreferences = getFallbackPreferences(req);
     fallbackPreferences[preferenceSlot - 1] = {
       preferenceSlot,
@@ -69,7 +79,7 @@ function renderDatabaseOfflinePage(req, res, next) {
       size,
       species,
       ageRange: req.body.ageRange || '',
-      lifeStage: ({ menos_1: 'cachorro', '1_6': 'adulto', mas_6: 'adulto mayor' })[req.body.ageRange] || '',
+      lifeStage: lifeStageByAge[req.body.ageRange] || '',
       foodLine: req.body.foodLine || '',
       medicalCondition: req.body.medicalCondition || '',
       shampooBrand: req.body.shampooBrand || '',

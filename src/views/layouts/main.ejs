@@ -29,16 +29,18 @@
       <span class="brand-mark">🐾</span>
       <span><strong>PetMarket</strong><small>Seguro</small></span>
     </a>
-    <form class="search-bar" action="/#productos" role="search">
+    <form class="search-bar" action="/#tienda" role="search" data-site-search>
       <span>🔎</span>
-      <input type="search" name="q" placeholder="Buscar comida, juguetes, shampoo..." aria-label="Buscar productos para mascotas">
+      <input type="search" name="q" placeholder="Buscar por secciones: comida, higiene, juguetes..." aria-label="Buscar productos para mascotas">
     </form>
     <nav class="nav petshop-nav" aria-label="Navegación principal">
       <a href="/">🏠 Inicio</a>
-      <a href="/#productos">🛍️ Tienda</a>
+      <a href="/#preferencias">🐾 Preferencias</a>
       <a href="/#marcas">⭐ Marcas</a>
-      <a href="/#productos">🐕 Perros</a>
-      <a href="/#productos">🐈 Gatos</a>
+      <a href="/#comida-comercial">🥣 Comercial</a>
+      <a href="/#comida-medicada">🩺 Medicada</a>
+      <a href="/#higiene">🧴 Higiene</a>
+      <a href="/#accesorios">🏷️ Accesorios</a>
       <% if (safeSession.admin) { %><a href="/admin">📊 Admin</a><% } %>
     </nav>
     <div class="header-icons petshop-actions" aria-label="Accesos rápidos">

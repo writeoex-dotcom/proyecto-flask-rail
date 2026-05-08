@@ -38,7 +38,6 @@ async function getRecommendedProducts(preferenceInput) {
       return { product, score };
     })
     .sort((a, b) => b.score - a.score || a.product.name.localeCompare(b.product.name))
-    .slice(0, 12)
     .map(({ product }) => product);
 }
 

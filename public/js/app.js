@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const root = document.documentElement;
+  const body = document.body;
   const themeToggle = document.querySelector('[data-theme-toggle]');
   const setThemeIcon = () => {
     if (!themeToggle) return;
@@ -16,16 +17,34 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const modal = document.querySelector('[data-preferences-modal]');
-  document.querySelector('[data-open-preferences]')?.addEventListener('click', () => {
-    if (modal) modal.hidden = false;
-  });
-  document.querySelectorAll('[data-close-preferences]').forEach((button) => {
-    button.addEventListener('click', () => {
-      if (modal) modal.hidden = true;
-    });
-  });
+  const openPreferenceButtons = document.querySelectorAll('[data-open-preferences]');
+  const closePreferenceButtons = document.querySelectorAll('[data-close-preferences]');
+  const firstPreferenceField = modal?.querySelector('select, input, button');
+
+  function openPreferences(event) {
+    event?.preventDefault();
+    if (!modal) return;
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    body.classList.add('modal-open');
+    setTimeout(() => firstPreferenceField?.focus(), 0);
+  }
+
+  function closePreferences(event) {
+    event?.preventDefault();
+    if (!modal) return;
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+    body.classList.remove('modal-open');
+  }
+
+  openPreferenceButtons.forEach((button) => button.addEventListener('click', openPreferences));
+  closePreferenceButtons.forEach((button) => button.addEventListener('click', closePreferences));
   modal?.addEventListener('click', (event) => {
-    if (event.target === modal) modal.hidden = true;
+    if (event.target === modal) closePreferences(event);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal && !modal.hidden) closePreferences(event);
   });
 
   const preferenceForm = document.querySelector('[data-preference-form]');
@@ -73,6 +92,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateSpeciesOptions();
   sizeSelect?.addEventListener('change', updateSpeciesOptions);
+  preferenceForm?.addEventListener('submit', (event) => {
+    if (sizeSelect?.value && speciesSelect && !speciesSelect.value) {
+      event.preventDefault();
+      speciesSelect.focus();
+      if (speciesHint) speciesHint.textContent = 'Selecciona una mascota compatible antes de guardar.';
+    }
+  });
+
+
+  const accordionItems = document.querySelectorAll('[data-preference-accordion] details');
+  accordionItems.forEach((item) => {
+    const indicator = item.querySelector('summary span');
+    const syncIndicator = () => {
+      if (indicator) indicator.textContent = item.open ? '−' : '+';
+    };
+    syncIndicator();
+    item.addEventListener('toggle', syncIndicator);
+  });
+
+  const searchForm = document.querySelector('[data-site-search]');
+  const searchInput = searchForm?.querySelector('input[type="search"]');
+  const productCards = Array.from(document.querySelectorAll('[data-product-card]'));
+  const productSections = Array.from(document.querySelectorAll('[data-product-section]'));
+  const emptySearch = document.querySelector('[data-search-empty]');
+
+  function normalizeText(value) {
+    return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  function filterProducts(query) {
+    const normalizedQuery = normalizeText(query);
+    let visibleCount = 0;
+    productCards.forEach((card) => {
+      const matches = !normalizedQuery || normalizeText(card.dataset.search).includes(normalizedQuery);
+      card.hidden = !matches;
+      if (matches) visibleCount += 1;
+    });
+    productSections.forEach((section) => {
+      const hasVisibleCards = Array.from(section.querySelectorAll('[data-product-card]')).some((card) => !card.hidden);
+      section.hidden = Boolean(normalizedQuery) && !hasVisibleCards;
+    });
+    if (emptySearch) emptySearch.hidden = !normalizedQuery || visibleCount > 0;
+  }
+
+  searchForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    filterProducts(searchInput?.value || '');
+    document.querySelector('#tienda')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  searchInput?.addEventListener('input', () => filterProducts(searchInput.value));
 
   document.querySelectorAll('canvas[data-labels]').forEach((canvas, index) => {
     if (!window.Chart) return;
