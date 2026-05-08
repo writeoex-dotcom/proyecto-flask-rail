@@ -1,0 +1,7 @@
+# Railway/Nixpacks production build configuration.
+# Keeps deploys smaller by installing only runtime dependencies.
+[phases.install]
+cmds = ["npm install --omit=dev"]
+
+[start]
+cmd = "npm start"
