@@ -100,7 +100,7 @@ Antes de cambiar código, revisa `https://status.railway.com/`. Si Railway marca
 
 
 - **Healthcheck failure**: confirma que `railway.json` apunte a `/health`. Ese endpoint está antes de sesiones/MySQL y debe responder `ok` con HTTP 200. Revisa también que `server.js` escuche en `0.0.0.0`.
-- **Error de base de datos / ECONNREFUSED**: valida que `MYSQL_URL` exista en el servicio web como Variable Reference, no solo en el servicio MySQL. Si no hay URL, configura `MYSQL_PUBLIC_URL` o `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`. Revisa `/ready` para ver `databaseConfig` sin secretos.
+- **Error de base de datos / ECONNREFUSED**: valida que `MYSQL_URL` exista en el servicio web como Variable Reference, no solo en el servicio MySQL. Si no hay URL, configura `MYSQL_PUBLIC_URL` o `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER` y `MYSQLPASSWORD`. Revisa `/ready` para ver `databaseConfig` sin secretos: `presentUrlKeys`, `urlSource`, `hasExplicitDatabaseConfig`, `host`, `database` y `username`.
 - **Sesión no persiste**: confirma `SESSION_SECRET`, `SESSION_TABLE_NAME=sessions`, `SECURE_COOKIES=true` con `NODE_ENV=production` y que `/ready` esté en verde.
 - **No entra admin**: genera de nuevo `ADMIN_PASSWORD_HASH` con `bcryptjs` y pega el hash completo.
 
@@ -132,3 +132,7 @@ MYSQL_URL=${{MySQL.MYSQL_URL}}
 ```
 
 Si solo ves las variables dentro del servicio MySQL, la app web no las recibe automáticamente. Deben estar también referenciadas en el servicio web. Si `/ready` muestra `hasExplicitDatabaseConfig: false` y `host: localhost`, este es exactamente el problema.
+
+## Validar datos después del deploy
+
+Después de que `/ready` muestre `databaseReady: true`, entra al home y verifica que aparezcan productos comerciales, medicados, accesorios, juguetes, shampoo y lociones. El seed actualiza datos existentes sin reiniciar `views`, por lo que puedes corregir catálogo con nuevos deploys sin perder analítica.

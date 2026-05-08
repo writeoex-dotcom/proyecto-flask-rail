@@ -213,7 +213,7 @@ Si Railway muestra `Build Machines (Metal) - Investigating` o indica que los bui
 
 ## Variables Railway que acepta la app
 
-La app acepta `MYSQL_URL`, `DATABASE_URL`, `MYSQL_PUBLIC_URL`, `DB_URL`, variables separadas `MYSQLHOST`/`MYSQLPORT`/`MYSQLDATABASE`/`MYSQLUSER`/`MYSQLPASSWORD` y también alias como `MYSQL_DATABASE` y `MYSQL_ROOT_PASSWORD`. Puedes verificar qué configuración detectó visitando `/ready`; la respuesta muestra `databaseConfig` sin contraseña. Si `hasExplicitDatabaseConfig` aparece en `false` y `host` aparece como `localhost`, el servicio web no recibió variables MySQL: agrega una Variable Reference en Railway.
+La app acepta `MYSQL_URL`, `MYSQL_PUBLIC_URL`, `DATABASE_URL`, `DATABASE_PUBLIC_URL`, `DB_URL`, variables separadas `MYSQLHOST`/`MYSQLPORT`/`MYSQLDATABASE`/`MYSQLUSER`/`MYSQLPASSWORD` y también alias como `MYSQL_DATABASE` y `MYSQL_ROOT_PASSWORD`. Puedes verificar qué configuración detectó visitando `/ready`; la respuesta muestra `databaseConfig` sin contraseña. Si `hasExplicitDatabaseConfig` aparece en `false` y `host` aparece como `localhost`, el servicio web no recibió variables MySQL: agrega una Variable Reference en Railway.
 
 
 ## Si `/ready` muestra `host: localhost` en Railway
@@ -224,3 +224,16 @@ Eso significa que el servicio web no recibió ninguna variable MySQL. Debes ir a
 ## Despliegue en Render
 
 El repo incluye `render.yaml` para crear el servicio web `petmarket-seguro-web` en Render. La app usa MySQL, por lo que en Render debes conectar un MySQL externo con `MYSQL_URL` en Environment Variables. Render define `PORT` automáticamente; la app ya escucha `0.0.0.0:$PORT`, expone `/health` para health checks y `/ready` para validar MySQL. Guía completa: [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md).
+
+
+## Corrección de datos y seed
+
+El seed de productos ahora usa `findOrCreate` + `update`: crea productos nuevos y actualiza categoría, marca, especie, etapa, línea, tags y precio sin borrar las vistas acumuladas. Esto permite corregir datos del catálogo en cada deploy sin perder analítica.
+
+## Checklist Railway final
+
+1. En el servicio web crea `MYSQL_URL=${{MySQL.MYSQL_URL}}` como Variable Reference.
+2. Si usas URL pública, crea `MYSQL_PUBLIC_URL=${{MySQL.MYSQL_PUBLIC_URL}}`.
+3. Redeploy.
+4. Abre `/ready`; revisa `presentUrlKeys`, `urlSource`, `hasExplicitDatabaseConfig` y que `host` ya no sea `localhost`.
+5. Si `databaseReady` es `true`, el catálogo se sincronizó y el seed actualizó datos sin borrar vistas.

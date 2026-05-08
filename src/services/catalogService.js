@@ -1,11 +1,23 @@
-const { Op } = require('sequelize');
 const { Product } = require('../models');
 const { products } = require('../data/catalog');
 
 async function seedProducts() {
-  const count = await Product.count();
-  if (count === 0) {
-    await Product.bulkCreate(products);
+  for (const productData of products) {
+    const [product] = await Product.findOrCreate({
+      where: { name: productData.name },
+      defaults: productData,
+    });
+
+    // Keep seeded catalog data fresh after deploys without resetting accumulated views.
+    await product.update({
+      category: productData.category,
+      brand: productData.brand,
+      species: productData.species,
+      lifeStage: productData.lifeStage,
+      lineType: productData.lineType,
+      tags: productData.tags,
+      price: productData.price,
+    });
   }
 }
 

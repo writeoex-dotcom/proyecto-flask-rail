@@ -1,35 +1,52 @@
 require('dotenv').config();
 
-// Railway MySQL puede exponer MYSQL_URL/DATABASE_URL/MYSQL_PUBLIC_URL
-// o variables separadas como MYSQLHOST, MYSQLPORT, MYSQLUSER, MYSQLPASSWORD y MYSQLDATABASE.
-function firstPresent(entries) {
-  return entries.find(([, value]) => Boolean(value)) || ['', ''];
+// Railway/Render MySQL can be provided as a full URL or as separate variables.
+// Railway's recommended setup is a Variable Reference in the WEB service:
+// MYSQL_URL=${{MySQL.MYSQL_URL}}
+const urlVariableNames = [
+  'MYSQL_URL',
+  'MYSQL_PUBLIC_URL',
+  'DATABASE_URL',
+  'DATABASE_PUBLIC_URL',
+  'DB_URL',
+];
+
+const separateVariableNames = [
+  'MYSQLHOST',
+  'MYSQLPORT',
+  'MYSQLDATABASE',
+  'MYSQL_DATABASE',
+  'MYSQLUSER',
+  'MYSQLPASSWORD',
+  'MYSQL_ROOT_PASSWORD',
+  'DB_HOST',
+  'DB_PORT',
+  'DB_NAME',
+  'DB_USER',
+  'DB_PASSWORD',
+];
+
+function cleanEnvValue(value) {
+  if (!value) return '';
+  const cleaned = String(value).trim().replace(/^['"]|['"]$/g, '');
+  // Detect unresolved platform template references so they do not get treated as URLs.
+  if (cleaned.startsWith('${{') || cleaned.includes('undefined')) return '';
+  return cleaned;
 }
 
-const [connectionUrlSource, connectionUrl] = firstPresent([
-  ['DB_URL', process.env.DB_URL],
-  ['MYSQL_URL', process.env.MYSQL_URL],
-  ['DATABASE_URL', process.env.DATABASE_URL],
-  ['MYSQL_PUBLIC_URL', process.env.MYSQL_PUBLIC_URL],
-]);
+function firstPresent(names) {
+  const name = names.find((key) => Boolean(cleanEnvValue(process.env[key])));
+  return [name || '', name ? cleanEnvValue(process.env[name]) : ''];
+}
+
+const [connectionUrlSource, connectionUrl] = firstPresent(urlVariableNames);
 const sslEnabled = process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true';
-const database = process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'petmarket';
-const username = process.env.DB_USER || process.env.MYSQLUSER || 'root';
-const password = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_ROOT_PASSWORD || 'password';
-const host = process.env.DB_HOST || process.env.MYSQLHOST || 'localhost';
-const port = Number(process.env.DB_PORT || process.env.MYSQLPORT || 3306);
-const explicitSeparateConfig = Boolean(
-  process.env.DB_HOST
-  || process.env.MYSQLHOST
-  || process.env.DB_NAME
-  || process.env.MYSQLDATABASE
-  || process.env.MYSQL_DATABASE
-  || process.env.DB_USER
-  || process.env.MYSQLUSER
-  || process.env.DB_PASSWORD
-  || process.env.MYSQLPASSWORD
-  || process.env.MYSQL_ROOT_PASSWORD,
-);
+const database = cleanEnvValue(process.env.DB_NAME) || cleanEnvValue(process.env.MYSQLDATABASE) || cleanEnvValue(process.env.MYSQL_DATABASE) || 'petmarket';
+const username = cleanEnvValue(process.env.DB_USER) || cleanEnvValue(process.env.MYSQLUSER) || 'root';
+const password = cleanEnvValue(process.env.DB_PASSWORD) || cleanEnvValue(process.env.MYSQLPASSWORD) || cleanEnvValue(process.env.MYSQL_ROOT_PASSWORD) || 'password';
+const host = cleanEnvValue(process.env.DB_HOST) || cleanEnvValue(process.env.MYSQLHOST) || 'localhost';
+const port = Number(cleanEnvValue(process.env.DB_PORT) || cleanEnvValue(process.env.MYSQLPORT) || 3306);
+const explicitSeparateConfig = separateVariableNames.some((key) => Boolean(cleanEnvValue(process.env[key])));
 const hasExplicitDatabaseConfig = Boolean(connectionUrl || explicitSeparateConfig);
 const isRailway = Boolean(
   process.env.RAILWAY_ENVIRONMENT
@@ -54,6 +71,10 @@ function sanitizeUrl(rawUrl) {
   } catch (error) {
     return 'URL inválida o no parseable';
   }
+}
+
+function listPresentKeys(names) {
+  return names.filter((key) => Boolean(cleanEnvValue(process.env[key])));
 }
 
 const missingHostedConfigMessage = hostedPlatform === 'Railway'
@@ -81,6 +102,8 @@ const databaseConfig = {
   summary: {
     usingUrl: Boolean(connectionUrl),
     urlSource: connectionUrlSource || null,
+    presentUrlKeys: listPresentKeys(urlVariableNames),
+    presentSeparateKeys: listPresentKeys(separateVariableNames),
     hasExplicitDatabaseConfig,
     isRailway,
     isRender,
