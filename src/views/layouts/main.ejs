@@ -48,6 +48,10 @@
       <span></span>
     </button>
     <nav id="main-navigation" class="nav petshop-nav" aria-label="Navegación principal" data-main-nav hidden>
+      <div class="nav-drawer-heading">
+        <strong>Menú rápido</strong>
+        <small>Elige una sección sin saturar la vista.</small>
+      </div>
       <a href="/">🏠 Inicio</a>
       <a href="/#preferencias">🐾 Preferencias</a>
       <a href="/#marcas">⭐ Marcas</a>
@@ -64,6 +68,7 @@
       <a href="/#juguetes">🎾 Juguetes</a>
       <% if (safeSession.admin) { %><a href="/admin">📊 Admin</a><% } %>
     </nav>
+    <button class="nav-backdrop" type="button" data-nav-backdrop aria-label="Cerrar navegación" hidden></button>
   </header>
   <%- include('../partials/flash', { flash: safeFlash }) %>
   <main id="contenido" tabindex="-1"><%- body %></main>

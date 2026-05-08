@@ -19,13 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const navToggle = document.querySelector('[data-nav-toggle]');
   const mainNav = document.querySelector('[data-main-nav]');
+  const navBackdrop = document.querySelector('[data-nav-backdrop]');
 
   function setNavigationOpen(isOpen) {
     if (!navToggle || !mainNav) return;
     mainNav.hidden = !isOpen;
+    if (navBackdrop) navBackdrop.hidden = !isOpen;
     navToggle.setAttribute('aria-expanded', String(isOpen));
     navToggle.setAttribute('aria-label', isOpen ? 'Cerrar barra de navegación' : 'Abrir barra de navegación');
     body.classList.toggle('nav-open', isOpen);
+    if (isOpen) setTimeout(() => mainNav.querySelector('a')?.focus(), 0);
   }
 
   navToggle?.addEventListener('click', () => {
@@ -35,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   mainNav?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => setNavigationOpen(false));
   });
+  navBackdrop?.addEventListener('click', () => setNavigationOpen(false));
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && mainNav && !mainNav.hidden) {

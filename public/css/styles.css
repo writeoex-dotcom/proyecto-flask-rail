@@ -52,8 +52,8 @@ button, input, select { font: inherit; }
 .hero { display: grid; grid-template-columns: 1.4fr .8fr; gap: 28px; align-items: center; margin: 32px auto; padding: 48px; max-width: 1180px; border-radius: 32px; background: var(--hero); border: 1px solid var(--line); box-shadow: var(--shadow); }
 .hero h1 { font-size: clamp(2rem, 5vw, 4.2rem); line-height: 1; margin: 8px 0; letter-spacing: -.06em; }
 .eyebrow { color: var(--primary-strong); font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }
-.cta, button:not(.theme-toggle):not(.nav-toggle) { border: 0; background: linear-gradient(135deg, var(--primary), var(--primary-strong)); color: white; border-radius: 999px; padding: 12px 18px; font-weight: 800; cursor: pointer; display: inline-block; box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 32%, transparent); }
-.cta:hover, button:not(.theme-toggle):not(.nav-toggle):hover { transform: translateY(-1px); }
+.cta, button:not(.theme-toggle):not(.nav-toggle):not(.nav-backdrop) { border: 0; background: linear-gradient(135deg, var(--primary), var(--primary-strong)); color: white; border-radius: 999px; padding: 12px 18px; font-weight: 800; cursor: pointer; display: inline-block; box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 32%, transparent); }
+.cta:hover, button:not(.theme-toggle):not(.nav-toggle):not(.nav-backdrop):hover { transform: translateY(-1px); }
 .ad-card, .product-card, .brand-card, .auth-card, .preference-summary, .modal-card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 24px; box-shadow: var(--shadow); }
 .ad-card span { display: inline-grid; place-items: center; width: 90px; height: 90px; background: var(--accent); color: white; border-radius: 50%; font-size: 1.6rem; font-weight: 900; }
 .section, .preference-summary { max-width: 1180px; margin: 28px auto; padding: 0 20px; }
@@ -109,15 +109,22 @@ footer { display: grid; gap: 6px; text-align: center; padding: 36px; color: var(
 .petshop-brand small { color: var(--muted); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .72rem; }
 .search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg-soft); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; min-height: 46px; }
 .search-bar input { border: 0; background: transparent; padding: 4px; outline: 0; }
-.petshop-nav { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; background: color-mix(in srgb, var(--bg-soft) 78%, transparent); border: 1px solid var(--line); border-radius: 24px; padding: 12px; box-shadow: var(--shadow); }
-.petshop-nav[hidden] { display: none !important; }
-.petshop-nav a { font-weight: 850; text-align: center; background: var(--card); border-color: var(--line); }
+.petshop-nav { position: fixed; inset: 0 0 0 auto; z-index: 31; width: min(380px, 88vw); display: grid; align-content: start; grid-template-columns: 1fr; gap: 10px; background: color-mix(in srgb, var(--card) 96%, transparent); border-left: 1px solid var(--line); border-radius: 28px 0 0 28px; padding: 82px 18px 24px; box-shadow: -24px 0 60px #00000024; backdrop-filter: blur(18px); }
+.petshop-nav[hidden], .nav-backdrop[hidden] { display: none !important; }
+.nav-drawer-heading { display: grid; gap: 4px; margin-bottom: 6px; padding: 0 6px 12px; border-bottom: 1px solid var(--line); }
+.nav-drawer-heading strong { font-size: 1.35rem; letter-spacing: -.03em; }
+.nav-drawer-heading small { color: var(--muted); font-weight: 800; }
+.petshop-nav a { display: flex; align-items: center; justify-content: space-between; min-height: 46px; font-weight: 850; text-align: left; background: var(--bg-soft); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+.petshop-nav a:hover, .petshop-nav a:focus-visible { background: color-mix(in srgb, var(--primary) 12%, var(--card)); color: var(--primary-strong); }
 .petshop-actions { justify-content: flex-end; }
-.nav-toggle { width: 46px; height: 46px; display: inline-grid; place-items: center; gap: 4px; background: var(--card); color: var(--dark); border: 1px solid var(--line); box-shadow: 0 8px 20px #0000000a; cursor: pointer; padding: 10px; }
+.nav-toggle { position: relative; z-index: 32; width: 46px; height: 46px; display: inline-grid; place-items: center; gap: 4px; background: var(--card); color: var(--dark); border: 1px solid var(--line); box-shadow: 0 8px 20px #0000000a; cursor: pointer; padding: 10px; }
 .nav-toggle span { display: block; width: 22px; height: 3px; border-radius: 999px; background: currentColor; transition: transform .2s ease, opacity .2s ease; }
+.nav-toggle[aria-expanded='true'] { background: var(--primary); color: white; border-color: transparent; box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 38%, transparent); }
 .nav-toggle[aria-expanded='true'] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .nav-toggle[aria-expanded='true'] span:nth-child(2) { opacity: 0; }
 .nav-toggle[aria-expanded='true'] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.nav-backdrop { position: fixed; inset: 0; z-index: 20; background: color-mix(in srgb, #172033 34%, transparent); border: 0; padding: 0; cursor: pointer; box-shadow: none; }
+body.nav-open { overflow: hidden; }
 .icon-pill { display: inline-flex !important; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--line) !important; box-shadow: 0 8px 20px #0000000a; }
 .icon-pill span { font-size: 1.15rem; }
 .icon-pill small { font-weight: 850; }
@@ -130,7 +137,7 @@ footer { display: grid; gap: 6px; text-align: center; padding: 36px; color: var(
 .secondary-link { font-weight: 900; color: var(--primary-strong); }
 .mini-checks { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 .mini-checks small { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 8px 10px; font-weight: 800; }
-@media (max-width: 920px) { .petshop-header { grid-template-columns: 1fr auto; } .petshop-brand { grid-column: 1; } .nav-toggle { grid-column: 2; grid-row: 1; justify-self: end; } .search-bar, .petshop-actions, .petshop-nav { grid-column: 1 / -1; } .petshop-actions, .petshop-nav { justify-content: flex-start; } .status-hero { grid-template-columns: 1fr; } }
+@media (max-width: 920px) { .petshop-header { grid-template-columns: 1fr auto; } .petshop-brand { grid-column: 1; } .nav-toggle { grid-column: 2; grid-row: 1; justify-self: end; } .search-bar, .petshop-actions { grid-column: 1 / -1; } .petshop-actions { justify-content: flex-start; } .status-hero { grid-template-columns: 1fr; } }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .preference-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px; }
 .preference-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 10px 24px #0000000a; }
@@ -177,7 +184,7 @@ button:disabled, .cta:disabled { opacity: .6; cursor: not-allowed; transform: no
 .cross-section { background: color-mix(in srgb, var(--bg-soft) 28%, transparent); border-radius: 26px; padding: 24px 20px; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); }
 .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
 .tag-cloud span { background: var(--bg-soft); border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 5px 9px; font-size: .8rem; font-weight: 850; text-transform: capitalize; }
-.petshop-nav { max-height: min(70vh, 520px); overflow: auto; scrollbar-width: thin; }
+.petshop-nav { max-height: 100vh; overflow: auto; scrollbar-width: thin; }
 .product-source { display: grid; gap: 6px; margin: 10px 0 12px; color: var(--muted); line-height: 1.35; }
 .product-source small { display: block; }
 .price-note { color: var(--muted); font-size: .72em; font-weight: 800; }
