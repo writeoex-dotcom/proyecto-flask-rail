@@ -78,7 +78,7 @@ npm run db:sync
 
 Para un prototipo en Railway, si ya existían tablas y necesitas aplicar nuevos índices/campos de los modelos, activa temporalmente `DB_SYNC_ALTER=true`, ejecuta un redeploy o `npm run db:sync`, valida `/ready` y luego vuelve a dejarlo en `false`.
 
-Si configuraste `MYSQLHOST=mysql.railway.internal` y `/ready` sigue en rojo, revisa `databaseConfig.missingSeparateKeys`: debe quedar vacío. Si aparecen variables faltantes, agrégalas en el servicio web de Railway (no solo en el servicio MySQL). También revisa `lastDatabaseFailure.code` y `lastDatabaseFailure.advice`, que traducen errores como `ENOTFOUND`, `ETIMEDOUT`, `ECONNREFUSED`, `ER_ACCESS_DENIED_ERROR` y `ER_BAD_DB_ERROR` a una acción concreta.
+Si configuraste `MYSQLHOST=mysql.railway.internal` y `/ready` sigue en rojo, revisa `databaseConfig.missingSeparateKeys`: debe quedar vacío. Si aparecen variables faltantes, agrégalas en el servicio web de Railway (no solo en el servicio MySQL). También revisa `lastDatabaseFailure.code` y `lastDatabaseFailure.advice`, que traducen errores como `ENOTFOUND`, `ETIMEDOUT`, `ECONNREFUSED`, `ER_ACCESS_DENIED_ERROR` y `ER_BAD_DB_ERROR` a una acción concreta. Aunque MySQL esté caído, la web permite navegar home, productos, login, registro y carrito en modo temporal; las acciones persistentes se habilitan cuando `databaseReady` pasa a `true`.
 
 ## Estructura del proyecto
 

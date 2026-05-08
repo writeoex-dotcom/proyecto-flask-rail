@@ -15,10 +15,12 @@ async function bootstrap() {
   });
 
   try {
-    await initializeDatabase(sessionStore, readiness);
-    readiness.databaseReady = true;
-    readiness.lastDatabaseError = null;
-    readiness.lastDatabaseFailure = null;
+    const databaseReady = await initializeDatabase(sessionStore, readiness);
+    readiness.databaseReady = Boolean(databaseReady);
+    if (databaseReady) {
+      readiness.lastDatabaseError = null;
+      readiness.lastDatabaseFailure = null;
+    }
   } catch (error) {
     readiness.lastDatabaseError = error.message;
     readiness.lastDatabaseFailure = { message: error.message, code: error.code || null, advice: 'Revisa MYSQL_URL o las variables MYSQLHOST/MYSQLUSER/MYSQLPASSWORD/MYSQLDATABASE en Railway.' };
